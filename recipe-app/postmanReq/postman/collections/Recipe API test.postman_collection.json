@@ -1,0 +1,66 @@
+{
+  "info": {
+    "_postman_id": "161dee70-4514-43f9-a7cf-fb85206293dd",
+    "name": "Recipe API test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Test empty recipe",
+      "id": "f3dd4ffd-280e-467c-845e-f455b4a0d682",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/recipes",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "recipes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Test recipe with trailing spaces",
+      "id": "28bb19fe-c586-4144-b81a-342881c3f177",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"title\": \"Pasta tortelini\",\r\n  \"ingredients\": [\r\n    \"Tortellini\",\r\n    \"Salt\",\r\n    \"Olive oil\"\r\n  ],\r\n  \"steps\": [\r\n    \"Boil water\",\r\n    \"Add salt\",\r\n    \"Cook tortellini according to package instructions\"\r\n  ],\r\n  \"tags\": [\r\n    \"Dinner             \",\r\n    \"Italian         \",\r\n    \"   Quick    \"\r\n  ],\r\n  \"servings\": 2,\r\n  \"timeMinutes\": 15\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/recipes",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "recipes"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
