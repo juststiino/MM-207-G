@@ -12,6 +12,16 @@
         "disableBodyPruning": true
       },
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{session_token}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "POST",
         "header": [],
         "url": {
@@ -36,6 +46,16 @@
         "disableBodyPruning": true
       },
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{session_token}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "POST",
         "header": [],
         "body": {
@@ -57,6 +77,15 @@
           "path": [
             "api",
             "recipes"
+          ],
+          "query": [
+            {
+              "key": "Token",
+              "value": "eyJpZCI6ImQ1NzVlM2FlLTQ1NzYtNDhlOS05NzMxLTliOTEzMjUyMDg1NiIsInVzZXJuYW1lIjoidGVzdCJ9.NQs4cKmQ_4oPYgstAPtk4xZESixNVPOIAm0mKnDzRT0",
+              "type": "text",
+              "uuid": "19bf3ef5-5db5-4a61-a01d-fa397c5d4b01",
+              "disabled": true
+            }
           ]
         }
       },

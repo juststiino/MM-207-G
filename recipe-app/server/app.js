@@ -1,7 +1,9 @@
 const express = require("express");
 const path = require("path");
 
-const {validateRecipe} = require("./middleware/validateRecipe");
+const { authRoutes } = require("./routes/authRoutes");
+const { recipeRoutes } = require("./routes/recipeRoutes");
+const { userRoutes } = require("./routes/userRoutes");
 
 const app = express();
 const port = 3000;
@@ -18,15 +20,13 @@ app.get("/", (req, res) => {
 });
 
 // API routes 
-// saves a new recipe (that is validated)
-app.post("/api/recipes", validateRecipe, (req, res) => {
-  res.status(201).json({ recipe: req.recipe });
-});
 
-// changes an existing recipe (that is validated)
-app.put("/api/recipes/:id", validateRecipe, (req, res) => {
-  res.status(200).json({ id: req.params.id, recipe: req.recipe });
-});
+// Users
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+
+// Recipes
+app.use("/api/recipes", recipeRoutes);
 
 // server is running?
 app.listen(port, () => {

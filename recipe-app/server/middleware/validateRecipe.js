@@ -28,6 +28,7 @@ function validateRecipe(req, res, next) {
   const ingredients = Array.isArray(body.ingredients) ? body.ingredients : []
   const steps = Array.isArray(body.steps) ? body.steps : []
   const tags = Array.isArray(body.tags) ? body.tags : []
+  const isPrivate = typeof body.isPrivate === "boolean" ? body.isPrivate : false;
 
   // Checks everything inside the JSON
   // title
@@ -93,6 +94,7 @@ function validateRecipe(req, res, next) {
     tags: normalizedTags,
     servings,
     timeMinutes,
+    isPrivate,
   }
 
   return next()
