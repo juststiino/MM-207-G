@@ -1,6 +1,6 @@
 // Verifies that requests have valid auth token, and returns unauthorized if not
 
-import { verifyToken } from "../services/authService";
+import { verifyToken } from "../services/authService.js";
 
 function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
@@ -15,4 +15,4 @@ function requireAuth(req, res, next) {
   return next();
 }
 
-export default { requireAuth };
+export { requireAuth };

@@ -3,7 +3,7 @@
 ### Trello workspace: https://trello.com/invite/b/6967998dac46845fc12eea0e/ATTI8081b872b868751aebd6c6c0839ffd6c3919548C/mm-207-g
 
 ### Idea: Oppskriftsbok på nett
-An app where users can create their own recipes, edit and share them with others. Recipes can include ingredients, instructions, time, servings, and tags. Possible features include creating recipes, editing recipes, tags and search, favorites, a shopping list generated from ingredients, sharing and access control.
+An app where users can create their own recipes, edit and share them with others. Recipes can include ingredients, instructions, time, servings, and tags. Possible features include creating recipes, editing recipes, tags, favorites, a shopping list generated from ingredients, sharing and access control.
 
 ### Feature map
 #### User accounts: 

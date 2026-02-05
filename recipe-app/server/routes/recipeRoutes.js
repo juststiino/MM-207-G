@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/requireAuth";
-import { validateRecipe } from "../middleware/validateRecipe";
-import { store } from "../store/memoryStore";
+import { requireAuth } from "../middleware/requireAuth.js";
+import { validateRecipe } from "../middleware/validateRecipe.js";
+import { store } from "../store/memoryStore.js";
 
 const router = Router();
 

@@ -1,8 +1,8 @@
 // Create or log in to a user
 
 import { Router } from "express";
-import { createUser, authenticate } from "../services/userService";
-import { signToken } from "../services/authService";
+import { createUser, authenticate } from "../services/userService.js";
+import { signToken } from "../services/authService.js";
 
 const router = Router();
 

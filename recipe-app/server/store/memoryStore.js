@@ -1,9 +1,7 @@
 // Temporary memory store untill we get a database
 
-const store = {
+export const store = {
   users: new Map(),            
   usersByUsername: new Map(),  
   publicRecipes: [],           
 };
-
-export default { store };

@@ -29,4 +29,4 @@ function verifyToken(token) {
   }
 }
 
-export default { signToken, verifyToken };
+export { signToken, verifyToken };

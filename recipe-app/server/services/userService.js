@@ -2,7 +2,7 @@
 // create, authenticate and delete
 
 import { scryptSync, randomUUID, randomBytes } from "crypto";
-import { store } from "../store/memoryStore";
+import { store } from "../store/memoryStore.js";
 
 function hashPassword(password, hashKey) {
   return scryptSync(password, hashKey, 64).toString("hex");
@@ -77,4 +77,4 @@ function deleteUserAndAnonymizePublicData(userId) {
   return true;
 }
 
-export default { createUser, authenticate, deleteUserAndAnonymizePublicData };
+export { createUser, authenticate, deleteUserAndAnonymizePublicData };

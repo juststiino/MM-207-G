@@ -1,9 +1,13 @@
 import express, { json, static as staticFiles } from "express";
-import { join } from "path";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-import { authRoutes } from "./routes/authRoutes";
-import { recipeRoutes } from "./routes/recipeRoutes";
-import { userRoutes } from "./routes/userRoutes";
+import { authRoutes } from "./routes/authRoutes.js";
+import { recipeRoutes } from "./routes/recipeRoutes.js";
+import { userRoutes } from "./routes/userRoutes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const port = 3000;
@@ -16,7 +20,7 @@ app.use(staticFiles(join(__dirname, "..", "client")));
 
 // Homepage 
 app.get("/", (req, res) => {
-  res.sendFile(join(__dirname, "..", "client", "index.html"));
+  res.sendFile(join(__dirname, "..", "client/src", "index.html"));
 });
 
 // API routes 

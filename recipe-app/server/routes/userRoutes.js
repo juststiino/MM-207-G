@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/requireAuth";
-import { deleteUserAndAnonymizePublicData } from "../services/userService";
+import { requireAuth } from "../middleware/requireAuth.js";
+import { deleteUserAndAnonymizePublicData } from "../services/userService.js";
 
 const router = Router();
 
