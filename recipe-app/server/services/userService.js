@@ -1,11 +1,11 @@
 // Handles the user accounts
 // create, authenticate and delete
 
-const crypto = require("crypto");
-const { store } = require("../store/memoryStore");
+import { scryptSync, randomUUID, randomBytes } from "crypto";
+import { store } from "../store/memoryStore";
 
 function hashPassword(password, hashKey) {
-  return crypto.scryptSync(password, hashKey, 64).toString("hex");
+  return scryptSync(password, hashKey, 64).toString("hex");
 }
 
 // create new user
@@ -23,8 +23,8 @@ function createUser({ username, password, tosAccepted }) {
     throw new Error("Username already exists");
   }
 
-  const id = crypto.randomUUID();
-  const hashKey = crypto.randomBytes(16).toString("hex");
+  const id = randomUUID();
+  const hashKey = randomBytes(16).toString("hex");
   const passwordHash = hashPassword(password, hashKey);
 
   const user = {
@@ -77,4 +77,4 @@ function deleteUserAndAnonymizePublicData(userId) {
   return true;
 }
 
-module.exports = { createUser, authenticate, deleteUserAndAnonymizePublicData };
+export default { createUser, authenticate, deleteUserAndAnonymizePublicData };

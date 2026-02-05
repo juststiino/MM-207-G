@@ -1,9 +1,9 @@
-const express = require("express");
-const { requireAuth } = require("../middleware/requireAuth");
-const { validateRecipe } = require("../middleware/validateRecipe");
-const { store } = require("../store/memoryStore");
+import { Router } from "express";
+import { requireAuth } from "../middleware/requireAuth";
+import { validateRecipe } from "../middleware/validateRecipe";
+import { store } from "../store/memoryStore";
 
-const router = express.Router();
+const router = Router();
 
 const recipes = [];
 
@@ -104,4 +104,4 @@ router.put("/:id", requireAuth, validateRecipe, (req, res) => {
   return res.status(200).json({ recipe: updated });
 });
 
-module.exports = { recipeRoutes: router };
+export const recipeRoutes = router;

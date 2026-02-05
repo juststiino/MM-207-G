@@ -1,10 +1,10 @@
 // Create or log in to a user
 
-const express = require("express");
-const { createUser, authenticate } = require("../services/userService");
-const { signToken } = require("../services/authService");
+import { Router } from "express";
+import { createUser, authenticate } from "../services/userService";
+import { signToken } from "../services/authService";
 
-const router = express.Router();
+const router = Router();
 
 // Creates new user
 router.post("/register", (req, res) => {
@@ -29,4 +29,4 @@ router.post("/login", (req, res) => {
   return res.json({ token });
 });
 
-module.exports = { authRoutes: router };
+export const authRoutes = router;

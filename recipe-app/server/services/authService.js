@@ -1,13 +1,12 @@
 // generates an auth token and verifies it
 
-const crypto = require("crypto");
+import { createHmac } from "crypto";
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET || "tempDevSecret";
 
 function signToken(payload) {
   const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const sig = crypto
-    .createHmac("sha256", TOKEN_SECRET)
+  const sig = createHmac("sha256", TOKEN_SECRET)
     .update(data)
     .digest("base64url");
   return `${data}.${sig}`;
@@ -17,8 +16,7 @@ function verifyToken(token) {
   if (!token || !token.includes(".")) return null;
 
   const [data, sig] = token.split(".");
-  const expected = crypto
-    .createHmac("sha256", TOKEN_SECRET)
+  const expected = createHmac("sha256", TOKEN_SECRET)
     .update(data)
     .digest("base64url");
 
@@ -31,4 +29,4 @@ function verifyToken(token) {
   }
 }
 
-module.exports = { signToken, verifyToken };
+export default { signToken, verifyToken };

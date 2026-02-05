@@ -6,4 +6,4 @@ const store = {
   publicRecipes: [],           
 };
 
-module.exports = { store };
+export default { store };

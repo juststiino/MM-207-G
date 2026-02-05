@@ -1,22 +1,22 @@
-const express = require("express");
-const path = require("path");
+import express, { json, static as staticFiles } from "express";
+import { join } from "path";
 
-const { authRoutes } = require("./routes/authRoutes");
-const { recipeRoutes } = require("./routes/recipeRoutes");
-const { userRoutes } = require("./routes/userRoutes");
+import { authRoutes } from "./routes/authRoutes";
+import { recipeRoutes } from "./routes/recipeRoutes";
+import { userRoutes } from "./routes/userRoutes";
 
 const app = express();
 const port = 3000;
 
 // JSON
-app.use(express.json());
+app.use(json());
 
 // CSS, JS
-app.use(express.static(path.join(__dirname, "..", "client")));
+app.use(staticFiles(join(__dirname, "..", "client")));
 
 // Homepage 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+  res.sendFile(join(__dirname, "..", "client", "index.html"));
 });
 
 // API routes 

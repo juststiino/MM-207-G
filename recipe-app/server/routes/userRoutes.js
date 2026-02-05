@@ -1,8 +1,8 @@
-const express = require("express");
-const { requireAuth } = require("../middleware/requireAuth");
-const { deleteUserAndAnonymizePublicData } = require("../services/userService");
+import { Router } from "express";
+import { requireAuth } from "../middleware/requireAuth";
+import { deleteUserAndAnonymizePublicData } from "../services/userService";
 
-const router = express.Router();
+const router = Router();
 
 // get all recipes for specific user
 router.get("/recipes", requireAuth, (req, res) => {
@@ -32,4 +32,4 @@ router.delete("/me", requireAuth, (req, res) => {
 });
 
 
-module.exports = { userRoutes: router };
+export const userRoutes = router;

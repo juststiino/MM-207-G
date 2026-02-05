@@ -100,4 +100,4 @@ function validateRecipe(req, res, next) {
   return next()
 }
 
-module.exports = { validateRecipe }
+export default { validateRecipe }
