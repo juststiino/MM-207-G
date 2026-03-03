@@ -2,15 +2,16 @@
 // create, authenticate and delete
 
 import { scryptSync, randomUUID, randomBytes } from "crypto";
-import { store } from "../store/memoryStore.js";
+import { store } from "../store/postgresStore.js";
 
 function hashPassword(password, hashKey) {
   return scryptSync(password, hashKey, 64).toString("hex");
 }
 
 // create new user
-function createUser({ username, password, tosAccepted }) {
+async function createUser({ username, password, tosAccepted }) {
   const cleanUsername = typeof username === "string" ? username.trim() : "";
+
   if (!cleanUsername || typeof password !== "string" || password.length < 6) {
     throw new Error("Missing username or password (min 6 chars)");
   }
@@ -19,61 +20,43 @@ function createUser({ username, password, tosAccepted }) {
     throw new Error("ToS consent required");
   }
 
-  if (store.usersByUsername.has(cleanUsername)) {
+  const existing = await store.getUserByUsername(cleanUsername);
+  if (existing) {
     throw new Error("Username already exists");
   }
 
-  const id = randomUUID();
   const hashKey = randomBytes(16).toString("hex");
   const passwordHash = hashPassword(password, hashKey);
 
   const user = {
-    id,
     username: cleanUsername,
     passwordHash,
     hashKey,
-    tosAcceptedAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
-    privateRecipes: [],
   };
 
-  store.users.set(id, user);
-  store.usersByUsername.set(cleanUsername, id);
+  const created = await store.createUser(user);
 
-  return { id: user.id, username: user.username, createdAt: user.createdAt };
+  // Return minimal user info
+  return { id: created.id, username: created.username };
 }
 
 // authenticate user
-function authenticate({ username, password }) {
+async function authenticate({ username, password }) {
   const cleanUsername = typeof username === "string" ? username.trim() : "";
-  const id = store.usersByUsername.get(cleanUsername); //change later to db
-  if (!id) return null;
 
-  const user = store.users.get(id);
+  const user = await store.getUserByUsername(cleanUsername);
   if (!user) return null;
 
-  const passwordHash = hashPassword(password, user.hashKey);
-  if (passwordHash !== user.passwordHash) return null;
+  const passwordHash = hashPassword(password, user.hashkey);
+  if (passwordHash !== user.password) return null;
 
   return { id: user.id, username: user.username };
 }
 
-// deleta user
-function deleteUserAndAnonymizePublicData(userId) {
-  const user = store.users.get(userId);
-  if (!user) return false;
-
-  // public recipes stays, even if user is deleted but username is removed
-  for (const r of store.publicRecipes) {
-    if (r.ownerUserId === userId) {
-      r.ownerUserId = null;
-      r.ownerLabel = "Deleted user";
-    }
-  }
-
-  store.users.delete(userId);
-  store.usersByUsername.delete(user.username);
-
+// delete user
+async function deleteUserAndAnonymizePublicData(userId) {
+  await store.deleteUser(userId);
   return true;
 }
 

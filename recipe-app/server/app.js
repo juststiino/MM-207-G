@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { json, static as staticFiles } from "express";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -36,3 +37,9 @@ app.use("/api/recipes", recipeRoutes);
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
+import { pool } from "./db.js";
+
+pool.query("SELECT NOW()")
+  .then(res => console.log("DB connected:", res.rows[0]))
+  .catch(err => console.error("DB error:", err));

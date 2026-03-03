@@ -1,12 +1,13 @@
 {
   "dependencies": {
-    "express": "^5.2.1"
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "pg": "^8.19.0"
   },
   "name": "mm-207-g",
   "version": "1.0.0",
   "description": "En app der brukere kan lage sine egen oppskrifter, redigere oppskrifter og dele dem med\r andre. Oppskrifter kan ha ingredienser, fremgangsmåte, tid, porsjoner og tag.\r Mulige funksjoner: opprette oppskrift, redigere oppskrift, tags og søk, favoritter, handleliste\r laget fra ingredienser, deling og tilgang",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
