@@ -20,7 +20,7 @@ app.use(staticFiles(join(__dirname, "..", "client")));
 
 // Homepage 
 app.get("/", (req, res) => {
-  res.sendFile(join(__dirname, "..", "client/src", "index.html"));
+  res.sendFile(join(__dirname, "..", "client", "index.html"));
 });
 
 // API routes 

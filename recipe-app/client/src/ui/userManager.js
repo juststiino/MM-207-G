@@ -4,7 +4,6 @@
 export class UserManager extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
 
     this.store = null;
     this.controller = null;
@@ -18,19 +17,139 @@ export class UserManager extends HTMLElement {
     this.controller = controller;
 
     // Observer who rerender when store changes
-    this.store.addEventListener("change", () => this.render());
+    this.store.addEventListener("change", () => this.updateUi());
 
     this.render();
+  }
+
+  get template() {
+    const t = document.getElementById("user-manager-template");
+    if (!t) {
+      throw new Error("Missing <template id='user-manager-template'> in index.html");
+    }
+    return t;
+  }
+
+  render() {
+    this.innerHTML = "";
+
+    const fragment = this.template.content.cloneNode(true);
+    this.appendChild(fragment);
+
+    this.cacheElements();
+    this.bindEvents();
+    this.updateUi();
+    this.bindLegalModalLinks();
+  }
+
+  cacheElements() {
+    this.elLoggedIn = this.querySelector('[data-view="logged-in"]');
+    this.elLoggedOut = this.querySelector('[data-view="logged-out"]');
+
+    this.elUsername = this.querySelector("[data-username]");
+
+    this.elLoginForm = this.querySelector("[data-login]");
+    this.elRegisterForm = this.querySelector("[data-register]");
+    this.elDeleteBtn = this.querySelector("[data-delete]");
+
+    this.elError = this.querySelector("[data-error]");
+    this.elErrorText = this.querySelector("[data-error-text]");
+  }
+
+  bindEvents() {
+    if (this.elLoginForm) {
+      this.elLoginForm.addEventListener("submit", (e) => this.handleLogin(e));
+    }
+
+    if (this.elRegisterForm) {
+      this.elRegisterForm.addEventListener("submit", (e) => this.handleRegister(e));
+    }
+
+    if (this.elDeleteBtn) {
+      this.elDeleteBtn.addEventListener("click", () => this.handleDelete());
+    }
+  }
+
+  bindLegalModalLinks() {
+    const modal = document.getElementById("legalModal");
+    const title = document.getElementById("legalTitle");
+    const content = document.getElementById("legalContent");
+
+    if (!modal || !title || !content) return;
+
+    const closeModal = () => {
+      modal.hidden = true;
+      content.innerHTML = "";
+      title.textContent = "Document";
+    };
+
+    // Close on backdrop or close button
+    modal.querySelectorAll("[data-modal-close]").forEach((el) => {
+      el.addEventListener("click", closeModal);
+    });
+
+    // Close on Escape
+    document.addEventListener("keydown", (e) => {
+      if (!modal.hidden && e.key === "Escape") closeModal();
+    });
+
+    // Intercept legal links inside this component
+    this.querySelectorAll("a[data-legal]").forEach((a) => {
+      a.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const kind = a.getAttribute("data-legal");
+        const url = a.getAttribute("href");
+
+        title.textContent = kind === "tos" ? "Terms of Service" : "Privacy Policy";
+        modal.hidden = false;
+
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
+
+          const html = await res.text();
+          const doc = new DOMParser().parseFromString(html, "text/html");
+
+          // Prefer <main>, fallback to body
+          const main = doc.querySelector("main");
+          content.innerHTML = main ? main.innerHTML : doc.body.innerHTML;
+        } catch (err) {
+          content.textContent = err?.message || String(err);
+        }
+      });
+    });
   }
 
   setBusy(v) {
     this.busy = v;
-    this.render();
+    this.updateUi();
   }
 
   setError(msg) {
     this.error = msg || "";
-    this.render();
+    this.updateUi();
+  }
+
+  updateUi() {
+    const loggedIn = !!this.store?.token;
+    const username = this.store?.user?.username || "";
+
+    if (this.elLoggedIn) this.elLoggedIn.hidden = !loggedIn;
+    if (this.elLoggedOut) this.elLoggedOut.hidden = loggedIn;
+
+    if (this.elUsername) this.elUsername.textContent = username;
+
+    const showError = !!this.error;
+    if (this.elError) this.elError.hidden = !showError;
+    if (this.elErrorText) this.elErrorText.textContent = this.error;
+
+    // Disable inputs while busy
+    const disable = this.busy;
+    const inputs = this.querySelectorAll("input, button");
+    inputs.forEach((el) => {
+      el.disabled = disable;
+    });
   }
 
   async handleLogin(e) {
@@ -40,8 +159,10 @@ export class UserManager extends HTMLElement {
     const form = e.currentTarget;
     const data = Object.fromEntries(new FormData(form).entries());
 
-    const username = typeof data.username === "string" ? data.username.trim() : "";
-    const password = typeof data.password === "string" ? data.password : "";
+    const username =
+      typeof data.username === "string" ? data.username.trim() : "";
+    const password =
+      typeof data.password === "string" ? data.password : "";
 
     try {
       this.setError("");
@@ -64,15 +185,21 @@ export class UserManager extends HTMLElement {
     const form = e.currentTarget;
     const data = Object.fromEntries(new FormData(form).entries());
 
-    const username = typeof data.username === "string" ? data.username.trim() : "";
-    const password = typeof data.password === "string" ? data.password : "";
+    const username =
+      typeof data.username === "string" ? data.username.trim() : "";
+    const password =
+      typeof data.password === "string" ? data.password : "";
     const tosAccepted = form.tosAccepted?.checked === true;
 
     try {
       this.setError("");
       this.setBusy(true);
 
-      await this.controller.register({ username, password, tosAccepted });
+      await this.controller.register({
+        username,
+        password,
+        tosAccepted,
+      });
 
       form.reset();
     } catch (err) {
@@ -96,102 +223,6 @@ export class UserManager extends HTMLElement {
       this.setBusy(false);
     }
   }
-
-  render() {
-    const loggedIn = !!this.store?.token;
-    const username = this.store?.user?.username || "";
-
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host { display:block; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-        .card { border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin-top: 14px; }
-        .row { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start; }
-        form { min-width: 260px; }
-        label { display:grid; gap:6px; margin-bottom:10px; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
-        button { padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; background: white; cursor:pointer; }
-        button.primary { border-color: #111; }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
-        .error { color: #b00020; margin: 10px 0 0 0; }
-        .hint { color: #666; }
-        .inline { display:flex; gap:8px; align-items:center; }
-      </style>
-
-      <section class="card">
-        <h2>User</h2>
-
-        ${
-          loggedIn
-            ? `
-              <p class="hint">Logged in ${username ? `as <strong>${escapeHtml(username)}</strong>` : ""}.</p>
-              <button id="delete" class="primary" ${this.busy ? "disabled" : ""}>
-                Delete account
-              </button>
-            `
-            : `
-              <div class="row">
-                <form id="login" class="card" style="margin:0;">
-                  <h3 style="margin-top:0;">Login</h3>
-                  <label>
-                    Username
-                    <input name="username" autocomplete="username" required ${this.busy ? "disabled" : ""} />
-                  </label>
-                  <label>
-                    Password
-                    <input name="password" type="password" autocomplete="current-password" required ${this.busy ? "disabled" : ""} />
-                  </label>
-                  <button type="submit" class="primary" ${this.busy ? "disabled" : ""}>Login</button>
-                </form>
-
-                <form id="register" class="card" style="margin:0;">
-                  <h3 style="margin-top:0;">Register</h3>
-                  <label>
-                    Username
-                    <input name="username" autocomplete="username" required ${this.busy ? "disabled" : ""} />
-                  </label>
-                  <label>
-                    Password (min 6 chars)
-                    <input name="password" type="password" autocomplete="new-password" required ${this.busy ? "disabled" : ""} />
-                  </label>
-
-                  <label>
-                    Terms of service consent
-                    <span class="inline">
-                      <input type="checkbox" name="tosAccepted" ${this.busy ? "disabled" : ""} />
-                      <span class="hint">I consent to the terms of service</span>
-                    </span>
-                  </label>
-
-                  <button type="submit" class="primary" ${this.busy ? "disabled" : ""}>Register</button>
-                </form>
-              </div>
-            `
-        }
-
-        ${this.error ? `<p class="error"><strong>Error:</strong> ${escapeHtml(this.error)}</p>` : ""}
-      </section>
-    `;
-
-    // Bind events after render
-    const loginForm = this.shadowRoot.querySelector("#login");
-    if (loginForm) loginForm.addEventListener("submit", (e) => this.handleLogin(e));
-
-    const registerForm = this.shadowRoot.querySelector("#register");
-    if (registerForm) registerForm.addEventListener("submit", (e) => this.handleRegister(e));
-
-    const delBtn = this.shadowRoot.querySelector("#delete");
-    if (delBtn) delBtn.addEventListener("click", () => this.handleDelete());
-  }
 }
 
 customElements.define("user-manager", UserManager);
-
-// Avoid injecting raw strings into innerHTML
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}

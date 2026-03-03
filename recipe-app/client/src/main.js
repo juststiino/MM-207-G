@@ -1,5 +1,5 @@
 import { UserStore } from "./data/userStore.js";
-import { UserController } from "./logic/userController.js";
+import { UserController } from "./controllers/userController.js";
 import "./ui/userManager.js";
 
 const store = new UserStore();
