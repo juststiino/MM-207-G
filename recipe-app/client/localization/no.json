@@ -1,0 +1,29 @@
+{
+  "errors": {
+    "incorrectId": "Feil bruker",
+    "loginFailed": "Innlogging mislyktes",
+    "registerFailed": "Registrering mislyktes",
+    "requiredField": "Dette feltet må fylles ut",
+    "requestFailed": "Forespørselen feilet",
+    "deleteFailed": "Klarte ikke å slette kontoen",
+    "legalLoadFailed": "Klarte ikke å laste dokumentet"
+  },
+  "ui": {
+    "user": "Bruker",
+    "login": "Logg inn",
+    "register": "Registrer",
+    "logout": "Logg ut",
+    "deleteAccount": "Slett konto",
+    "username": "Brukernavn",
+    "password": "Passord",
+    "passwordMin": "Passord (min 6 tegn)",
+    "tosConsent": "Samtykke til vilkår",
+    "agreePrefix": "Jeg godtar",
+    "termsOfService": "Bruksvilkårene",
+    "privacyPolicy": "Personvernerklæringen",
+    "loggedInAs": "Logget inn som",
+    "error": "Feil:",
+    "document": "Dokument",
+    "and": "og"
+  }
+}

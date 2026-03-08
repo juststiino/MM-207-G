@@ -1,6 +1,13 @@
+import { loadTranslations, t, getLanguage } from "./modules/i18n.js";
 import { UserStore } from "./data/userStore.js";
 import { UserController } from "./controllers/userController.js";
 import "./ui/userManager.js";
+
+await loadTranslations();
+
+// Test language detection
+console.log("Current language:", getLanguage());
+console.log("Login error message:", t("errors.loginFailed"));
 
 const store = new UserStore();
 const controller = new UserController(store);

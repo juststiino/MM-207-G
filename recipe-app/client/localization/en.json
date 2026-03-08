@@ -1,0 +1,29 @@
+{
+  "errors": {
+    "incorrectId": "Incorrect user",
+    "loginFailed": "Login failed",
+    "registerFailed": "Registration failed",
+    "requiredField": "This field is required",
+    "requestFailed": "Request failed",
+    "deleteFailed": "Failed to delete account",
+    "legalLoadFailed": "Failed to load document"
+  },
+  "ui": {
+    "user": "User",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "deleteAccount": "Delete account",
+    "username": "Username",
+    "password": "Password",
+    "passwordMin": "Password (min 6 chars)",
+    "tosConsent": "Terms of service consent",
+    "agreePrefix": "I agree to the",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "loggedInAs": "Logged in as",
+    "error": "Error:",
+    "document": "Document",
+    "and": "and"
+  }
+}
