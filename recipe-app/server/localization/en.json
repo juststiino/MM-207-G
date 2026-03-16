@@ -1,0 +1,12 @@
+{
+  "errors": {
+    "wrongUserOrPassword": "Wrong username or password",
+    "serverError": "Server error",
+    "missingUsernameOrPassword": "Missing username or password (min 6 chars)",
+    "tosRequired": "Terms of Service consent is required",
+    "usernameExists": "Username already exists",
+    "unauthorized": "Unauthorized",
+    "userNotFound": "User not found",
+    "deleteFailed": "Failed to delete account"
+  }
+}

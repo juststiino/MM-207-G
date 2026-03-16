@@ -108,11 +108,11 @@ export class UserManager extends HTMLElement {
     const loginPasswordLabel = loginPasswordInput?.closest("label");
 
     if (loginUsernameLabel && loginUsernameLabel.childNodes[0]) {
-      loginUsernameLabel.childNodes[0].textContent = `${tr("ui.username", "Username")}\n            `;
+      loginUsernameLabel.childNodes[0].textContent = `${tr("ui.username", "Username")}\n`;
     }
 
     if (loginPasswordLabel && loginPasswordLabel.childNodes[0]) {
-      loginPasswordLabel.childNodes[0].textContent = `${tr("ui.password", "Password")}\n            `;
+      loginPasswordLabel.childNodes[0].textContent = `${tr("ui.password", "Password")}\n`;
     }
 
     // Register form labels
@@ -123,18 +123,18 @@ export class UserManager extends HTMLElement {
     const registerPasswordLabel = registerPasswordInput?.closest("label");
 
     if (registerUsernameLabel && registerUsernameLabel.childNodes[0]) {
-      registerUsernameLabel.childNodes[0].textContent = `${tr("ui.username", "Username")}\n            `;
+      registerUsernameLabel.childNodes[0].textContent = `${tr("ui.username", "Username")}\n`;
     }
 
     if (registerPasswordLabel && registerPasswordLabel.childNodes[0]) {
-      registerPasswordLabel.childNodes[0].textContent = `${tr("ui.passwordMin", "Password (min 6 chars)")}\n            `;
+      registerPasswordLabel.childNodes[0].textContent = `${tr("ui.passwordMin", "Password (min 6 chars)")}\n`;
     }
 
     // Terms of service consent label
     const tosCheckbox = this.elRegisterForm?.querySelector('input[name="tosAccepted"]');
     const tosLabel = tosCheckbox?.closest("label");
     if (tosLabel && tosLabel.childNodes[0]) {
-      tosLabel.childNodes[0].textContent = `${tr("ui.tosConsent", "Terms of service consent")}\n            `;
+      tosLabel.childNodes[0].textContent = `${tr("ui.tosConsent", "Terms of service consent")}\n`;
     }
 
     // Legal agreement text and links
@@ -238,7 +238,7 @@ export class UserManager extends HTMLElement {
           const html = await res.text();
           const doc = new DOMParser().parseFromString(html, "text/html");
 
-          // Prefer <main>, fallback to body
+          // Prefer main, fallback to body
           const main = doc.querySelector("main");
           content.innerHTML = main ? main.innerHTML : doc.body.innerHTML;
         } catch {
@@ -297,9 +297,11 @@ export class UserManager extends HTMLElement {
       await this.controller.login({ username, password });
 
       form.reset();
-    } catch {
-      this.setError(tr("errors.loginFailed", "Login failed"));
-    } finally {
+    } 
+    catch (err) {
+      this.setError(err.message || tr("errors.loginFailed", "Login failed"));
+    }
+    finally {
       this.setBusy(false);
     }
   }
@@ -328,9 +330,11 @@ export class UserManager extends HTMLElement {
       });
 
       form.reset();
-    } catch {
-      this.setError(tr("errors.registerFailed", "Registration failed"));
-    } finally {
+    } 
+    catch (err) {
+      this.setError(err.message || tr("errors.registerFailed", "Registration failed"));
+    }
+    finally {
       this.setBusy(false);
     }
   }
@@ -343,9 +347,11 @@ export class UserManager extends HTMLElement {
       this.setBusy(true);
 
       await this.controller.deleteAccount();
-    } catch {
+    } 
+    catch {
       this.setError(tr("errors.deleteFailed", "Failed to delete account"));
-    } finally {
+    } 
+    finally {
       this.setBusy(false);
     }
   }

@@ -1,0 +1,12 @@
+{
+  "errors": {
+    "wrongUserOrPassword": "Feil brukernavn eller passord",
+    "serverError": "Serverfeil",
+    "missingUsernameOrPassword": "Mangler brukernavn eller passord, minst 6 tegn",
+    "tosRequired": "Samtykke til bruksvilkår er påkrevd",
+    "usernameExists": "Brukernavnet finnes allerede",
+    "unauthorized": "Ikke autorisert",
+    "userNotFound": "Bruker ikke funnet",
+    "deleteFailed": "Klarte ikke å slette konto"
+  }
+}

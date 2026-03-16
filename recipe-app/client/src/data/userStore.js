@@ -31,6 +31,7 @@ export class UserStore extends EventTarget {
       body: JSON.stringify({ username, password }),
     });
 
+    this.user = res.user;
     this.setToken(res.token);
     return res.token;
   }

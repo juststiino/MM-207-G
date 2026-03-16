@@ -25,30 +25,31 @@ async function createUser({ username, password, tosAccepted }) {
     throw new Error("Username already exists");
   }
 
+  const id = randomUUID();
   const hashKey = randomBytes(16).toString("hex");
   const passwordHash = hashPassword(password, hashKey);
 
   const user = {
+    id,
     username: cleanUsername,
     passwordHash,
     hashKey,
     createdAt: new Date().toISOString(),
   };
 
-  const created = await store.createUser(user);
-
-  // Return minimal user info
-  return { id: created.id, username: created.username };
+  return await store.createUser(user);
 }
 
 // authenticate user
 async function authenticate({ username, password }) {
-  const cleanUsername = typeof username === "string" ? username.trim() : "";
+  const cleanUsername =
+    typeof username === "string" ? username.trim() : "";
 
   const user = await store.getUserByUsername(cleanUsername);
   if (!user) return null;
 
   const passwordHash = hashPassword(password, user.hashkey);
+
   if (passwordHash !== user.password) return null;
 
   return { id: user.id, username: user.username };

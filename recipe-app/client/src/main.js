@@ -18,3 +18,9 @@ if (!el) {
 }
 
 el.deps = { store, controller };
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js")
+    .then(() => console.log("Service worker registered"))
+    .catch(err => console.log("SW error", err));
+}

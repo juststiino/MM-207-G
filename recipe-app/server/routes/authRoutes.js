@@ -1,12 +1,10 @@
-// Create or log in to a user
-
 import { Router } from "express";
 import { createUser, authenticate } from "../services/userService.js";
 import { signToken } from "../services/authService.js";
+import { t } from "../i18n.js";
 
 const router = Router();
 
-// Creates new user
 router.post("/register", async (req, res) => {
   try {
     const { username, password, tosAccepted } = req.body;
@@ -15,31 +13,45 @@ router.post("/register", async (req, res) => {
 
     return res.status(201).json({ user });
   } catch (e) {
-    return res.status(400).json({ error: e.message });
+    let message = e.message;
+
+    if (message === "Missing username or password (min 6 chars)") {
+      message = t(req, "errors.missingUsernameOrPassword");
+    } else if (message === "ToS consent required") {
+      message = t(req, "errors.tosRequired");
+    } else if (message === "Username already exists") {
+      message = t(req, "errors.usernameExists");
+    } else {
+      message = t(req, "errors.serverError");
+    }
+
+    return res.status(400).json({ error: message });
   }
 });
 
-// Log in to an existing user
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
     const user = await authenticate({ username, password });
+
     if (!user) {
-      return res.status(401).json({ error: "Wrong user or password" });
+      return res.status(401).json({
+        error: t(req, "errors.wrongUserOrPassword"),
+      });
     }
 
-    const token = signToken({ id: user.id, username: user.username });
-
-    return res.json({
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-      },
+    const token = signToken({
+      id: user.id,
+      username: user.username,
     });
-  } catch (e) {
-    return res.status(500).json({ error: "Server error" });
+
+    res.json({ token, user });
+
+  } catch {
+    res.status(500).json({
+      error: t(req, "errors.serverError"),
+    });
   }
 });
 
