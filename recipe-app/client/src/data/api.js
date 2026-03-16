@@ -1,15 +1,17 @@
 export async function request(path, options = {}) {
+  const token = localStorage.getItem("token");
 
-    // Call the API, but fetches only
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+
   const res = await fetch(path, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
     ...options,
+    headers,
   });
 
-  // Recives what the API returns, and checks if it's JSON or not. Then parses it accordingly
   const contentType = res.headers.get("content-type") || "";
   const isJson = contentType.includes("application/json");
 

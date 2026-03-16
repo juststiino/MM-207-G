@@ -2,16 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Recipe book</title>
+  <title>My recipes</title>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="manifest" href="/public/manifest.json" />
-  <link rel="icon" href="/public/icon-192.png" />
 </head>
-
 <body>
   <header class="site-header">
-    <img src="/public/icon-192.png" alt="Recipe book logo" class="logo" />
-    <h1>Recipe book</h1>
+    <h1>My recipes</h1>
   </header>
 
   <nav class="navbar">
@@ -23,13 +19,12 @@
 
   <main>
     <section class="card">
-        <h2>Public recipes</h2>
-        <p id="msg" class="hint"></p>
-        <p id="recipes-empty" class="hint" hidden>No public recipes yet.</p>
-        <div id="recipeList"></div>
+      <h2>Your recipes</h2>
+      <p id="msg"></p>
+      <div id="recipeList"></div>
     </section>
   </main>
 
-  <script type="module" src="./src/ui/indexRecipes.js"></script>
+  <script type="module" src="./src/ui/myRecipe.js"></script>
 </body>
 </html>

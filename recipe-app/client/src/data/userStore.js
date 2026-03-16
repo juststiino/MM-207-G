@@ -5,12 +5,27 @@ import { request } from "./api.js";
 export class UserStore extends EventTarget {
   constructor() {
     super();
-    this.token = null;
-    this.user = null;
+    this.token = localStorage.getItem("token");
+    this.user = localStorage.getItem("user");
   }
 
   setToken(token) {
     this.token = token;
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token");
+    }
+    this.dispatchEvent(new Event("change"));
+  }
+
+  setUser(user) {
+    this.user = user;
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
     this.dispatchEvent(new Event("change"));
   }
 
@@ -21,7 +36,7 @@ export class UserStore extends EventTarget {
     });
 
     this.user = res.user;
-    this.dispatchEvent(new Event("change"));
+    this.setUser(res.user);
     return res.user;
   }
 
@@ -31,7 +46,7 @@ export class UserStore extends EventTarget {
       body: JSON.stringify({ username, password }),
     });
 
-    this.user = res.user;
+    this.setUser(res.user);
     this.setToken(res.token);
     return res.token;
   }

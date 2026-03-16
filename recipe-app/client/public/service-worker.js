@@ -2,24 +2,24 @@ const CACHE_NAME = "recipe-cache-v3";
 
 const urlsToCache = [
   "/",
-  "/index.html",
-  "/styles.css",
+  "./index.html",
+  "./styles.css",
   "/manifest.json",
   "/icon-192.png",
   "/icon-512.png",
 
-  "/src/main.js",
-  "/src/data/api.js",
-  "/src/data/userStore.js",
-  "/src/controllers/userController.js",
-  "/src/ui/userManager.js",
-  "/src/modules/i18n.js",
+  "./src/main.js",
+  "./src/data/api.js",
+  "./src/data/userStore.js",
+  "./src/controllers/userController.js",
+  "./src/ui/userManager.js",
+  "./src/modules/i18n.js",
 
-  "/localization/en.json",
-  "/localization/no.json",
+  "./localization/en.json",
+  "./localization/no.json",
 
-  "/tos.html",
-  "/privacy.html"
+  "./tos.html",
+  "./privacy.html"
 ];
 
 self.addEventListener("install", event => {

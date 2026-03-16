@@ -16,6 +16,11 @@ const port = 3000;
 // JSON
 app.use(json());
 
+app.use(function(err, req, res, next) {
+  // Log the stack trace to the server console
+  console.error(err.stack);
+});
+
 // CSS, JS
 app.use(staticFiles(join(__dirname, "..", "client")));
 
@@ -43,3 +48,4 @@ import { pool } from "./db.js";
 pool.query("SELECT NOW()")
   .then(res => console.log("DB connected:", res.rows[0]))
   .catch(err => console.error("DB error:", err));
+  
