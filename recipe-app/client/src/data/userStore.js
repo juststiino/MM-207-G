@@ -30,15 +30,15 @@ export class UserStore extends EventTarget {
   }
 
   async register({ username, password, tosAccepted }) {
-    const res = await request("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify({ username, password, tosAccepted }),
-    });
+  const res = await request("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ username, password, tosAccepted }),
+  });
 
-    this.user = res.user;
-    this.setUser(res.user);
-    return res.user;
-  }
+  this.setUser(res.user);
+  this.setToken(res.token);
+  return res.user;
+}
 
   async login({ username, password }) {
     const res = await request("/api/auth/login", {
@@ -59,8 +59,7 @@ export class UserStore extends EventTarget {
       },
     });
 
-    this.user = null;
-    this.token = null;
-    this.dispatchEvent(new Event("change"));
+    this.setUser(null);
+    this.setToken(null);
   }
 }

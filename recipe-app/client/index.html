@@ -30,6 +30,30 @@
     </section>
   </main>
 
+    <div class="modal" id="recipeModal" hidden>
+      <div class="modal-backdrop" data-modal-close></div>
+
+      <div
+        class="modal-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="recipeModalTitle"
+      >
+        <div class="modal-header">
+          <h2 id="recipeModalTitle">Recipe</h2>
+          <button
+            type="button"
+            class="modal-close"
+            data-modal-close
+            aria-label="Close recipe"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="modal-body" id="recipeModalBody"></div>
+      </div>
+    </div>  
   <script type="module" src="./src/ui/indexRecipes.js"></script>
 </body>
 </html>

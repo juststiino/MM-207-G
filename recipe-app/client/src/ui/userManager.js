@@ -297,6 +297,7 @@ export class UserManager extends HTMLElement {
       await this.controller.login({ username, password });
 
       form.reset();
+      window.location.href = "/myRecipe.html";
     } 
     catch (err) {
       this.setError(err.message || tr("errors.loginFailed", "Login failed"));
@@ -330,6 +331,7 @@ export class UserManager extends HTMLElement {
       });
 
       form.reset();
+      window.location.href = "/myRecipe.html";
     } 
     catch (err) {
       this.setError(err.message || tr("errors.registerFailed", "Registration failed"));
@@ -342,16 +344,20 @@ export class UserManager extends HTMLElement {
   async handleDelete() {
     if (!this.controller) return;
 
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your account? Private recipes will be deleted."
+    );
+
+    if (!confirmed) return;
+
     try {
       this.setError("");
       this.setBusy(true);
 
       await this.controller.deleteAccount();
-    } 
-    catch {
+    } catch {
       this.setError(tr("errors.deleteFailed", "Failed to delete account"));
-    } 
-    finally {
+    } finally {
       this.setBusy(false);
     }
   }

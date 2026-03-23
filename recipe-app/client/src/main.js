@@ -2,8 +2,11 @@ import { loadTranslations, t, getLanguage } from "./modules/i18n.js";
 import { UserStore } from "./data/userStore.js";
 import { UserController } from "./controllers/userController.js";
 import "./ui/userManager.js";
+import { initNavbar } from "./ui/navbar.js";
 
 await loadTranslations();
+
+initNavbar();
 
 // Test language detection
 console.log("Current language:", getLanguage());
@@ -20,7 +23,7 @@ if (!el) {
 el.deps = { store, controller };
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./public/service-worker.js")
+  navigator.serviceWorker.register("/service-worker.js")
     .then(() => console.log("Service worker registered"))
     .catch(err => console.log("SW error", err));
 }

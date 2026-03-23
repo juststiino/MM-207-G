@@ -57,8 +57,14 @@ async function authenticate({ username, password }) {
 
 // delete user
 async function deleteUserAndAnonymizePublicData(userId) {
-  await store.deleteUser(userId);
-  return true;
+  // delete private recipes
+  await store.deletePrivateRecipesByUser(userId);
+
+  // anonymize public recipes
+  await store.anonymizePublicRecipesByUser(userId);
+
+  // delete user
+  return store.deleteUser(userId);
 }
 
 export { createUser, authenticate, deleteUserAndAnonymizePublicData };

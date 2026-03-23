@@ -21,9 +21,12 @@ function mapDbRecipeToClient(recipe) {
     tags: recipe.tags,
     servings: recipe.servings,
     timeMinutes: recipe.time_minutes,
+    imageUrl: recipe.image_url,
     isPrivate: recipe.is_private === true,
     ownerUserId: recipe.user_id,
+    username: recipe.username,
     createdAt: recipe.created_at,
+    updatedAt: recipe.updated_at,
   };
 }
 
@@ -50,6 +53,7 @@ router.post("/", requireAuth, validateRecipe, async (req, res) => {
       tags: req.recipe.tags,
       servings: req.recipe.servings,
       timeMinutes: req.recipe.timeMinutes,
+      imageUrl: req.recipe.imageUrl,
       userId: req.user.id,
       isPrivate: req.recipe.isPrivate,
     });
@@ -97,6 +101,7 @@ router.put("/:id", requireAuth, validateRecipe, async (req, res) => {
       tags: req.recipe.tags,
       servings: req.recipe.servings,
       timeMinutes: req.recipe.timeMinutes,
+      imageUrl: req.recipe.imageUrl,
       isPrivate: req.recipe.isPrivate,
     });
 
@@ -121,6 +126,30 @@ router.get("/mine", requireAuth, async (req, res) => {
     console.error(error);
     return res.status(500).json({
       error: "Failed to fetch user recipes",
+    });
+  }
+});
+
+router.delete("/:id", requireAuth, async (req, res) => {
+  try {
+    const user = { id: req.user.id };
+
+    const found = await findUserRecipeById(user, req.params.id);
+    if (!found) {
+      return res.status(404).json({ error: "Recipe not found" });
+    }
+
+    const deleted = await store.deleteRecipe(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Recipe not found" });
+    }
+
+    return res.status(200).json({ message: "Recipe deleted" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: "Failed to delete recipe",
     });
   }
 });

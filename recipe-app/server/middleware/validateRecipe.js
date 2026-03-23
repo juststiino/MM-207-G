@@ -87,6 +87,15 @@ function validateRecipe(req, res, next) {
   }
 
   // Sets the normalized and validatet recipe on to the req.
+  let imageUrl = null;
+
+  if (typeof body.imageUrl === "string") {
+    const trimmed = body.imageUrl.trim();
+    if (trimmed.length > 0) {
+      imageUrl = trimmed;
+    }
+  }
+
   req.recipe = {
     title,
     ingredients: normalizedIngredients,
@@ -94,8 +103,9 @@ function validateRecipe(req, res, next) {
     tags: normalizedTags,
     servings,
     timeMinutes,
+    imageUrl,
     isPrivate,
-  }
+  };
 
   return next()
 }
