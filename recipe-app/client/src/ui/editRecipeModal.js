@@ -245,7 +245,7 @@ export class EditRecipeModal {
 
       this.close();
     } catch (error) {
-      this.showError(error.message || t("errors.recipeUpdateFailed"));
+      this.showError(t("errors.recipeUpdateFailed"));
     } finally {
       this.setBusy(false);
     }

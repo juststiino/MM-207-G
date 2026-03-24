@@ -1,6 +1,9 @@
+import { RecipeStore } from "../data/recipeStore.js";
 import { request } from "../data/api.js";
 import { loadTranslations, t } from "../modules/i18n.js";
 import { initNavbar } from "./navbar.js";
+
+const recipeStore = new RecipeStore();
 
 await loadTranslations();
 
@@ -104,15 +107,15 @@ form?.addEventListener("submit", async (e) => {
   };
 
   try {
-    await request("/api/recipes", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+    const created = await recipeStore.createRecipe(payload);
 
-    msg.textContent = t("recipes.recipeCreatedSuccessfully");
+    msg.textContent = created.offline
+      ? t("recipes.recipeSavedOffline")
+      : t("recipes.recipeCreatedSuccessfully");
+
     form.reset();
   } catch (error) {
-    msg.textContent = error.message || t("errors.recipeCreateFailed");
+    msg.textContent = t("errors.recipeCreateFailed");
     console.error(error);
   }
 });

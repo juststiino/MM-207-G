@@ -83,6 +83,7 @@
     "deleteConfirmPrefix": "Delete",
     "servingsSuffix": "servings",
     "tagPlaceholder": "dinner, italian, quick",
-    "imageUrlPlaceholder": "https://example.com/recipe.jpg"
+    "imageUrlPlaceholder": "https://example.com/recipe.jpg",
+    "recipeSavedOffline": "Recipe saved offline and will be uploaded when you are online again."
   }
 }

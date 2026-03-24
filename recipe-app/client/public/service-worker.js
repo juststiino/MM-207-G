@@ -1,4 +1,5 @@
-const CACHE_NAME = "recipe-cache-v6";
+const CACHE_NAME = "recipe-cache-v8";
+
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -14,9 +15,11 @@ const APP_SHELL = [
   "/public/icon-512.png",
 
   "/src/main.js",
+
   "/src/data/api.js",
   "/src/data/recipeStore.js",
   "/src/data/userStore.js",
+
   "/src/controllers/userController.js",
 
   "/src/ui/navbar.js",
@@ -28,15 +31,28 @@ const APP_SHELL = [
   "/src/ui/recipeModal.js",
   "/src/ui/editRecipeModal.js",
 
+  "/src/utils/escapeHTML.js",
+
   "/src/modules/i18n.js",
+
   "/localization/en.json",
   "/localization/no.json",
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const url of APP_SHELL) {
+        try {
+          await cache.add(url);
+          console.log("cached", url);
+        } catch (err) {
+          console.error("FAILED", url);
+        }
+      }
+    })
   );
+
   self.skipWaiting();
 });
 
@@ -62,7 +78,6 @@ self.addEventListener("fetch", (event) => {
 
   if (url.origin !== self.location.origin) return;
 
-  // HTML: network first, fallback to cache
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -71,12 +86,13 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match("/index.html")))
+        .catch(() =>
+          caches.match(request).then((cached) => cached || caches.match("/index.html"))
+        )
     );
     return;
   }
 
-  // API GET: network first, fallback to cache
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(
       fetch(request)
@@ -92,7 +108,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static files: cache first
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;

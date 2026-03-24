@@ -7,10 +7,16 @@ export async function request(path, options = {}) {
     ...(options.headers || {}),
   };
 
-  const res = await fetch(path, {
-    ...options,
-    headers,
-  });
+  let res;
+
+  try {
+    res = await fetch(path, {
+      ...options,
+      headers,
+    });
+  } catch (error) {
+    throw new Error("Request failed");
+  }
 
   const contentType = res.headers.get("content-type") || "";
   const isJson = contentType.includes("application/json");

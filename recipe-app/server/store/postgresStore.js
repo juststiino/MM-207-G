@@ -43,6 +43,8 @@ export const store = {
         r.servings,
         r.time_minutes,
         r.image_url,
+        r.image_source_url,
+        (r.image_data IS NOT NULL) AS has_image,
         r.created_at,
         r.updated_at,
         r.user_id,
@@ -68,6 +70,8 @@ export const store = {
         r.servings,
         r.time_minutes,
         r.image_url,
+        r.image_source_url,
+        (r.image_data IS NOT NULL) AS has_image,
         r.created_at,
         r.updated_at,
         r.user_id,
@@ -93,6 +97,8 @@ export const store = {
         r.servings,
         r.time_minutes,
         r.image_url,
+        r.image_source_url,
+        (r.image_data IS NOT NULL) AS has_image,
         r.created_at,
         r.updated_at,
         r.user_id,
@@ -108,6 +114,17 @@ export const store = {
     return result.rows;
   },
 
+  async getRecipeImageById(id) {
+    const result = await pool.query(
+      `SELECT id, image_data, image_mime_type
+       FROM recipes
+       WHERE id = $1`,
+      [id]
+    );
+
+    return result.rows[0] || null;
+  },
+
   async createRecipe(recipe) {
     const result = await pool.query(
       `INSERT INTO recipes (
@@ -118,10 +135,13 @@ export const store = {
         servings,
         time_minutes,
         image_url,
+        image_source_url,
+        image_data,
+        image_mime_type,
         user_id,
         is_private
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING
         id,
         title,
@@ -131,6 +151,8 @@ export const store = {
         servings,
         time_minutes,
         image_url,
+        image_source_url,
+        (image_data IS NOT NULL) AS has_image,
         created_at,
         updated_at,
         user_id,
@@ -142,7 +164,10 @@ export const store = {
         recipe.tags,
         recipe.servings,
         recipe.timeMinutes,
-        recipe.imageUrl,
+        recipe.imageSourceUrl,
+        recipe.imageSourceUrl,
+        recipe.imageData,
+        recipe.imageMimeType,
         recipe.userId,
         recipe.isPrivate,
       ]
@@ -171,9 +196,12 @@ export const store = {
           servings = $5,
           time_minutes = $6,
           image_url = $7,
-          is_private = $8,
+          image_source_url = $8,
+          image_data = $9,
+          image_mime_type = $10,
+          is_private = $11,
           updated_at = NOW()
-      WHERE id = $9
+      WHERE id = $12
       RETURNING
         id,
         title,
@@ -183,6 +211,8 @@ export const store = {
         servings,
         time_minutes,
         image_url,
+        image_source_url,
+        (image_data IS NOT NULL) AS has_image,
         created_at,
         updated_at,
         user_id,
@@ -194,7 +224,10 @@ export const store = {
         recipe.tags,
         recipe.servings,
         recipe.timeMinutes,
-        recipe.imageUrl,
+        recipe.imageSourceUrl,
+        recipe.imageSourceUrl,
+        recipe.imageData,
+        recipe.imageMimeType,
         recipe.isPrivate,
         id,
       ]
@@ -225,11 +258,11 @@ export const store = {
     return result.rows[0] || null;
   },
 
-    async deletePrivateRecipesByUser(userId) {
+  async deletePrivateRecipesByUser(userId) {
     await pool.query(
       `DELETE FROM recipes
-      WHERE user_id = $1
-      AND is_private = true`,
+       WHERE user_id = $1
+       AND is_private = true`,
       [userId]
     );
   },
@@ -237,9 +270,9 @@ export const store = {
   async anonymizePublicRecipesByUser(userId) {
     await pool.query(
       `UPDATE recipes
-      SET user_id = NULL
-      WHERE user_id = $1
-      AND is_private = false`,
+       SET user_id = NULL
+       WHERE user_id = $1
+       AND is_private = false`,
       [userId]
     );
   },

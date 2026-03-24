@@ -83,6 +83,7 @@
     "deleteConfirmPrefix": "Slette",
     "servingsSuffix": "porsjoner",
     "tagPlaceholder": "middag, italiensk, rask",
-    "imageUrlPlaceholder": "https://example.com/oppskrift.jpg"
+    "imageUrlPlaceholder": "https://example.com/oppskrift.jpg",
+    "recipeSavedOffline": "Oppskriften ble lagret lokalt og vil lastes opp når du er online igjen."
   }
 }

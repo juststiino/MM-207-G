@@ -23,7 +23,15 @@ if (!el) {
 el.deps = { store, controller };
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js")
+  navigator.serviceWorker.register("/public/service-worker.js", {
+    scope: "/",
+  })
     .then(() => console.log("Service worker registered"))
     .catch(err => console.log("SW error", err));
 }
+
+import { syncPending } from "./data/recipeStore.js";
+
+window.addEventListener("online", () => {
+  syncPending();
+});
