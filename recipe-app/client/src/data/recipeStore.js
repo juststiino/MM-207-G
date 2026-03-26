@@ -3,7 +3,7 @@ import {
 } from "./api.js";
 
 const CACHE_KEYS = {
-  public: "recipebook.publicRecipes",
+  public: "recipebook.Recipes",
   mine: "recipebook.myRecipes",
 };
 

@@ -15,22 +15,44 @@ const recipeList = document.getElementById("recipeList");
 const msg = document.getElementById("msg");
 const empty = document.getElementById("recipes-empty");
 
+let searchTerm = "";
+let activeTag = "";
+let allRecipes = [];
+
+function getSearchFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("q") || "";
+}
+
+function syncSearchInput() {
+  const searchInput = document.getElementById("globalSearch");
+  if (searchInput) {
+    searchInput.value = searchTerm;
+  }
+}
+
 function applyPageTranslations() {
   document.title = t("pages.recipeBook");
 
   const siteTitle = document.querySelector(".site-header h1");
   if (siteTitle) siteTitle.textContent = t("pages.recipeBook");
 
-  const navLinks = document.querySelectorAll(".navbar .navButton");
-  if (navLinks[0]) navLinks[0].textContent = t("nav.home");
-  if (navLinks[1]) navLinks[1].textContent = t("nav.login");
-  if (navLinks[2]) navLinks[2].textContent = t("nav.createRecipe");
-  if (navLinks[3]) navLinks[3].textContent = t("nav.myRecipes");
-
   const sectionTitle = document.querySelector("main .card h2");
-  if (sectionTitle) sectionTitle.textContent = t("recipes.publicRecipes");
+  if (sectionTitle) {
+    sectionTitle.textContent = activeTag
+      ? `${t("recipes.tagResults")} #${activeTag}`
+      : t("recipes.Recipes");
+  }
 
-  if (empty) empty.textContent = t("recipes.noPublicRecipes");
+  if (empty) {
+    if (activeTag) {
+      empty.textContent = t("recipes.noTagResults");
+    } else if (searchTerm.trim()) {
+      empty.textContent = t("recipes.noSearchResults");
+    } else {
+      empty.textContent = t("recipes.noRecipes");
+    }
+  }
 
   const modalTitle = document.getElementById("recipeModalTitle");
   if (modalTitle) modalTitle.textContent = t("pages.recipe");
@@ -39,6 +61,13 @@ function applyPageTranslations() {
   if (closeButton) {
     closeButton.setAttribute("aria-label", t("recipes.closeRecipe"));
   }
+
+  const searchInput = document.getElementById("globalSearch");
+  if (searchInput) {
+    searchInput.placeholder = t("recipes.searchPlaceholder");
+    searchInput.setAttribute("aria-label", t("recipes.searchRecipes"));
+  }
+  
 }
 
 function getCurrentUser() {
@@ -56,12 +85,81 @@ function isOwner(recipe) {
   return String(recipe.ownerUserId) === String(user.id);
 }
 
+function dedupeRecipes(recipes) {
+  const seen = new Set();
+  const result = [];
+
+  for (const recipe of recipes) {
+    const id = String(recipe.id);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    result.push(recipe);
+  }
+
+  return result;
+}
+
+function recipeMatchesSearch(recipe, query) {
+  const q = String(query || "").trim().toLowerCase();
+  if (!q) return true;
+
+  const isPrivate = recipe.isPrivate === true || recipe.isPublic === false;
+
+  if (isPrivate && !isOwner(recipe)) {
+    return false;
+  }
+
+  const title = String(recipe.title || "").toLowerCase();
+  const username = String(recipe.username || "").toLowerCase();
+  const tags = Array.isArray(recipe.tags)
+    ? recipe.tags.join(" ").toLowerCase()
+    : String(recipe.tags || "").toLowerCase();
+
+  return (
+    title.includes(q) ||
+    username.includes(q) ||
+    tags.includes(q)
+  );
+}
+
+function recipeMatchesTag(recipe, tag) {
+  const normalizedTag = String(tag || "").trim().toLowerCase();
+  if (!normalizedTag) return true;
+
+  const isPrivate = recipe.isPrivate === true || recipe.isPublic === false;
+
+  if (isPrivate && !isOwner(recipe)) {
+    return false;
+  }
+
+  const tags = normalizeTags(recipe.tags);
+  return tags.includes(normalizedTag);
+}
+
+function getTagFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("tag") || "";
+}
+
+function normalizeTags(tags) {
+  if (!tags) return [];
+
+  if (Array.isArray(tags)) {
+    return tags.map((tag) => String(tag).trim().toLowerCase()).filter(Boolean);
+  }
+
+  return String(tags)
+    .split(",")
+    .map((tag) => tag.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 function handleRecipeSaved(updatedRecipe) {
-  const recipes = recipeStore.getRecipes().map((recipe) =>
+  allRecipes = allRecipes.map((recipe) =>
     String(recipe.id) === String(updatedRecipe.id) ? updatedRecipe : recipe
   );
 
-  recipeStore.setRecipes(recipes);
+  renderRecipes();
 }
 
 function openEditRecipe(recipe) {
@@ -77,30 +175,49 @@ async function handleRecipeDeleted(recipe) {
   try {
     await recipeStore.deleteRecipe(recipe.id);
 
-    const recipes = recipeStore.getRecipes().filter(
+    allRecipes = allRecipes.filter(
       (item) => String(item.id) !== String(recipe.id)
     );
 
-    recipeStore.setRecipes(recipes);
+    renderRecipes();
   } catch (error) {
     alert(error.message || t("errors.recipeDeleteFailed"));
   }
 }
 
 function renderRecipes() {
-  const recipes = recipeStore.getRecipes();
+  const filteredRecipes = allRecipes.filter((recipe) => {
+    return (
+      recipeMatchesSearch(recipe, searchTerm) &&
+      recipeMatchesTag(recipe, activeTag)
+    );
+  });
 
-  if (!recipes.length) {
+  if (!filteredRecipes.length) {
     recipeList.replaceChildren();
-    if (empty) empty.hidden = false;
+
+    if (empty) {
+      empty.textContent = activeTag
+        ? t("recipes.noTagResults")
+        : searchTerm.trim()
+          ? t("recipes.noSearchResults")
+          : t("recipes.noRecipes");
+      empty.hidden = false;
+    }
+
     return;
   }
 
   if (empty) empty.hidden = true;
 
-  renderRecipeGallery(recipeList, recipes, {
-    emptyText: t("recipes.noPublicRecipes"),
-    onOpen: (recipe) =>
+  renderRecipeGallery(recipeList, filteredRecipes, {
+    showVisibility: true,
+    emptyText: activeTag
+      ? t("recipes.noTagResults")
+      : searchTerm.trim()
+        ? t("recipes.noSearchResults")
+        : t("recipes.noRecipes"),
+        onOpen: (recipe) =>
       recipeModal.open(recipe, {
         allowEdit: isOwner(recipe),
         allowDelete: isOwner(recipe),
@@ -110,16 +227,38 @@ function renderRecipes() {
   });
 }
 
-recipeStore.addEventListener("change", renderRecipes);
-
 async function init() {
-  applyPageTranslations();
   initNavbar();
+
+  searchTerm = getSearchFromUrl();
+  activeTag = getTagFromUrl();
+
+  syncSearchInput();
+  applyPageTranslations();
+
+  const searchInput = document.getElementById("globalSearch");
+  if (searchInput) {
+    searchInput.addEventListener("input", (event) => {
+      searchTerm = event.target.value || "";
+      renderRecipes();
+    });
+  }
 
   try {
     if (msg) msg.textContent = t("recipes.loadingRecipes");
-    await recipeStore.loadPublicRecipes();
+
+    const publicRecipes = await recipeStore.loadPublicRecipes();
+    let combined = [...publicRecipes];
+
+    if (localStorage.getItem("token")) {
+      const myRecipes = await recipeStore.loadMyRecipes();
+      combined = [...publicRecipes, ...myRecipes];
+    }
+
+    allRecipes = dedupeRecipes(combined);
+
     if (msg) msg.textContent = "";
+    renderRecipes();
   } catch (error) {
     console.error(error);
     if (msg) msg.textContent = error.message || t("errors.recipesLoadFailed");
@@ -128,6 +267,7 @@ async function init() {
 
 window.addEventListener("languagechange", () => {
   applyPageTranslations();
+  syncSearchInput();
   renderRecipes();
 });
 

@@ -25,12 +25,6 @@ function applyPageTranslations() {
   const siteTitle = document.querySelector(".site-header h1");
   if (siteTitle) siteTitle.textContent = t("pages.createRecipe");
 
-  const navLinks = document.querySelectorAll(".navbar .navButton");
-  if (navLinks[0]) navLinks[0].textContent = t("nav.home");
-  if (navLinks[1]) navLinks[1].textContent = t("nav.login");
-  if (navLinks[2]) navLinks[2].textContent = t("nav.createRecipe");
-  if (navLinks[3]) navLinks[3].textContent = t("nav.myRecipes");
-
   const sectionTitle = document.querySelector("main .card h2");
   if (sectionTitle) sectionTitle.textContent = t("recipes.newRecipe");
 
@@ -41,13 +35,13 @@ function applyPageTranslations() {
   if (imageUrlLabel) imageUrlLabel.textContent = t("recipes.imageUrl");
 
   const ingredientsLabel = document.querySelector('label[for="ingredients"] .edit-recipe-label');
-  if (ingredientsLabel) ingredientsLabel.textContent = t("recipes.ingredientsOnePerLine");
+  if (ingredientsLabel) ingredientsLabel.textContent = t("recipes.ingredients");
 
   const stepsLabel = document.querySelector('label[for="steps"] .edit-recipe-label');
-  if (stepsLabel) stepsLabel.textContent = t("recipes.stepsOnePerLine");
+  if (stepsLabel) stepsLabel.textContent = t("recipes.steps");
 
   const tagsLabel = document.querySelector('label[for="tags"] .edit-recipe-label');
-  if (tagsLabel) tagsLabel.textContent = t("recipes.tagsSeparatedByComma");
+  if (tagsLabel) tagsLabel.textContent = t("recipes.tags");
 
   const servingsLabel = document.querySelector('label[for="servings"] .edit-recipe-label');
   if (servingsLabel) servingsLabel.textContent = t("recipes.servings");
@@ -61,8 +55,17 @@ function applyPageTranslations() {
   const imageUrlInput = document.getElementById("imageUrl");
   if (imageUrlInput) imageUrlInput.placeholder = t("recipes.imageUrlPlaceholder");
 
+  const ingredientsInput = document.getElementById("ingredients");
+  if (ingredientsInput) ingredientsInput.placeholder = t("recipes.ingredientsPlaceholder");
+
+  const stepsInput = document.getElementById("steps");
+  if (stepsInput) stepsInput.placeholder = t("recipes.stepsPlaceholder");
+
   const tagsInput = document.getElementById("tags");
   if (tagsInput) tagsInput.placeholder = t("recipes.tagPlaceholder");
+
+  const tagsHelp = document.getElementById("tagsHelp");
+  if (tagsHelp) tagsHelp.textContent = t("recipes.tagsHelp");
 
   const submitButton = form?.querySelector('button[type="submit"]');
   if (submitButton) submitButton.textContent = t("recipes.saveRecipe");
@@ -111,18 +114,17 @@ form?.addEventListener("submit", async (e) => {
     isPrivate,
   };
 
-  try {
-    const created = await recipeStore.createRecipe(payload);
+try {
+  const created = await recipeStore.createRecipe(payload);
 
-  showMessage(
-    created.offline
-      ? t("recipes.recipeSavedOffline")
-      : t("recipes.recipeCreatedSuccessfully"),
-    "success"
-  );
-
+  if (created?.offline) {
+    showMessage(t("recipes.recipeSavedOffline"), "success");
     form.reset();
-  } catch (error) {
+    return;
+  }
+
+  window.location.href = `/recipe.html?id=${created.id}`;
+} catch (error) {
     showMessage(t("errors.recipeCreateFailed"), "error");
     console.error(error);
   }

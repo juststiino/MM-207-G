@@ -38,10 +38,16 @@ function makePill(text) {
 }
 
 function makeTag(text) {
-  const span = document.createElement("span");
-  span.className = "recipe-tag";
-  span.textContent = text;
-  return span;
+  const link = document.createElement("a");
+  link.className = "recipe-tag recipe-tag-link";
+  link.textContent = text;
+  link.href = `/index.html?tag=${encodeURIComponent(text)}`;
+
+  link.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  return link;
 }
 
 function createImagePlaceholder() {
@@ -54,8 +60,22 @@ function createImagePlaceholder() {
 export function createRecipeCard(recipe, options = {}) {
   const { showVisibility = false, onOpen } = options;
 
+  const currentUser = JSON.parse(localStorage.getItem("user") || "null");
+
+  const isOwner =
+    currentUser &&
+    recipe &&
+    String(recipe.ownerUserId) === String(currentUser.id);
+
+  const isPrivate =
+    recipe.isPrivate === true || recipe.isPublic === false;
+
   const article = document.createElement("article");
   article.className = "recipe-card";
+
+  if (isPrivate && isOwner) {
+    article.classList.add("recipe-card-private");
+  }
   article.tabIndex = 0;
 
   let media;
@@ -88,7 +108,31 @@ export function createRecipeCard(recipe, options = {}) {
     meta.appendChild(makePill(`🍴 ${recipe.servings} ${t("recipes.servingsSuffix")}`));
   }
   if (showVisibility) {
-    meta.appendChild(makePill(recipe.isPrivate ? t("recipes.private") : t("recipes.public")));
+    const isPrivate =
+      recipe.isPrivate === true || recipe.isPublic === false;
+
+    const currentUser = JSON.parse(
+      localStorage.getItem("user") || "null"
+    );
+
+    const isOwner =
+      currentUser &&
+      recipe &&
+      String(recipe.ownerUserId) === String(currentUser.id);
+
+    const pill = makePill(
+      isPrivate
+        ? isOwner
+          ? t("recipes.private")
+          : t("recipes.private")
+        : t("recipes.public")
+    );
+
+    if (isPrivate && isOwner) {
+      pill.classList.add("recipe-visibility-badge", "private");
+    }
+
+    meta.appendChild(pill);
   }
 
   const tagsWrap = document.createElement("div");

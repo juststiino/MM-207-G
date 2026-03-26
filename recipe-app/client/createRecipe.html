@@ -41,23 +41,32 @@
         </label>
 
         <label class="edit-recipe-field" for="ingredients">
-          <span class="edit-recipe-label">Ingredients, one per line</span>
-          <textarea id="ingredients" required></textarea>
+          <span class="edit-recipe-label">Ingredients</span>
+          <textarea
+            id="ingredients"
+            required
+            placeholder="Write one ingredient per line. You do not need to use - or numbering."
+          ></textarea>
         </label>
 
         <label class="edit-recipe-field" for="steps">
-          <span class="edit-recipe-label">Steps, one per line</span>
-          <textarea id="steps" required></textarea>
+          <span class="edit-recipe-label">Steps</span>
+          <textarea
+            id="steps"
+            required
+            placeholder="Write one step per line. You do not need to use 1., 2. or -."
+          ></textarea>
         </label>
 
         <label class="edit-recipe-field" for="tags">
-          <span class="edit-recipe-label">Tags, separated by comma</span>
+          <span class="edit-recipe-label">Tags</span>
           <input
             type="text"
             id="tags"
             placeholder="dinner, italian, quick"
           />
         </label>
+        <p class="hint" id="tagsHelp">Add tags to make the recipe easier to find.</p>
 
         <label class="edit-recipe-field" for="servings">
           <span class="edit-recipe-label">Servings</span>

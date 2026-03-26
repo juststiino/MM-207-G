@@ -4,31 +4,23 @@ import { RecipeModal } from "./recipeModal.js";
 import { EditRecipeModal } from "./editRecipeModal.js";
 import { loadTranslations, t } from "../modules/i18n.js";
 import { initNavbar } from "./navbar.js";
-import { UserStore } from "../data/userStore.js";
-import { UserController } from "../controllers/userController.js";
 
 await loadTranslations();
 
 const recipeStore = new RecipeStore();
 const recipeModal = new RecipeModal();
 const editRecipeModal = new EditRecipeModal(recipeStore);
-const userStore = new UserStore();
-const userController = new UserController(userStore);
 
 const recipeList = document.getElementById("recipeList");
 const msg = document.getElementById("msg");
+
+let searchTerm = "";
 
 function applyPageTranslations() {
   document.title = t("pages.myRecipes");
 
   const siteTitle = document.querySelector(".site-header h1");
   if (siteTitle) siteTitle.textContent = t("pages.myRecipes");
-
-  const navLinks = document.querySelectorAll(".navbar .navButton");
-  if (navLinks[0]) navLinks[0].textContent = t("nav.home");
-  if (navLinks[1]) navLinks[1].textContent = t("nav.login");
-  if (navLinks[2]) navLinks[2].textContent = t("nav.createRecipe");
-  if (navLinks[3]) navLinks[3].textContent = t("nav.myRecipes");
 
   const sectionTitle = document.querySelector("main .card h2");
   if (sectionTitle) sectionTitle.textContent = t("recipes.yourRecipes");
@@ -40,18 +32,49 @@ function applyPageTranslations() {
   if (closeButton) {
     closeButton.setAttribute("aria-label", t("recipes.closeRecipe"));
   }
+
+  const searchInput = document.getElementById("globalSearch");
+  if (searchInput) {
+    searchInput.placeholder = t("recipes.searchPlaceholder");
+    searchInput.setAttribute("aria-label", t("recipes.searchRecipes"));
+    searchInput.value = searchTerm;
+  }
+}
+
+function recipeMatchesSearch(recipe, query) {
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  if (!normalizedQuery) return true;
+
+  const title = String(recipe.title || "").toLowerCase();
+  const username = String(recipe.username || "").toLowerCase();
+
+  const tags = Array.isArray(recipe.tags)
+    ? recipe.tags.join(" ").toLowerCase()
+    : String(recipe.tags || "").toLowerCase();
+
+  return (
+    title.includes(normalizedQuery) ||
+    username.includes(normalizedQuery) ||
+    tags.includes(normalizedQuery)
+  );
 }
 
 async function init() {
-  applyPageTranslations();
   initNavbar();
+  applyPageTranslations();
 
   if (!localStorage.getItem("token")) {
     window.location.href = "/login.html";
     return;
   }
 
-  renderAccountSection();
+  const searchInput = document.getElementById("globalSearch");
+  if (searchInput) {
+    searchInput.addEventListener("input", (event) => {
+      searchTerm = event.target.value || "";
+      renderRecipes();
+    });
+  }
 
   try {
     if (msg) msg.textContent = t("recipes.loadingRecipes");
@@ -93,9 +116,14 @@ function openEditRecipe(recipe) {
 
 function renderRecipes() {
   const recipes = recipeStore.getRecipes();
+  const filteredRecipes = recipes.filter((recipe) =>
+    recipeMatchesSearch(recipe, searchTerm)
+  );
 
-  renderRecipeGallery(recipeList, recipes, {
-    emptyText: t("recipes.noUserRecipes"),
+  renderRecipeGallery(recipeList, filteredRecipes, {
+    emptyText: searchTerm.trim()
+      ? t("recipes.noSearchResults")
+      : t("recipes.noUserRecipes"),
     showVisibility: true,
     onOpen: (recipe) =>
       recipeModal.open(recipe, {
@@ -110,75 +138,9 @@ function renderRecipes() {
 
 recipeStore.addEventListener("change", renderRecipes);
 
-function renderAccountSection() {
-  const mainCard = document.querySelector("main .card");
-  if (!mainCard) return;
-
-  let accountBox = document.getElementById("accountBox");
-  if (!accountBox) {
-    accountBox = document.createElement("div");
-    accountBox.id = "accountBox";
-    accountBox.className = "recipe-detail-footer";
-    mainCard.appendChild(accountBox);
-  }
-
-  accountBox.replaceChildren();
-
-  const info = document.createElement("div");
-  info.className = "recipe-detail-info";
-
-  const username =
-    userStore.user?.username ||
-    JSON.parse(localStorage.getItem("user") || "null")?.username ||
-    t("recipes.unknown");
-
-  const name = document.createElement("p");
-  name.textContent = `${t("ui.loggedInAs")} ${username}`;
-
-  info.appendChild(name);
-
-  const actions = document.createElement("div");
-  actions.className = "recipe-detail-actions";
-
-  const logoutButton = document.createElement("button");
-  logoutButton.type = "button";
-  logoutButton.textContent = t("ui.logout");
-  logoutButton.className = "account-logout";
-
-  logoutButton.addEventListener("click", () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "/index.html";
-  });
-
-  const deleteButton = document.createElement("button");
-  deleteButton.type = "button";
-  deleteButton.className = "danger";
-  deleteButton.textContent = t("ui.deleteAccount");
-
-  deleteButton.addEventListener("click", async () => {
-    const confirmed = window.confirm(t("ui.deleteAccount"));
-    if (!confirmed) return;
-
-    try {
-      await userController.deleteAccount();
-      window.location.href = "/index.html";
-    } catch (error) {
-      alert(error.message || t("errors.deleteFailed"));
-    }
-  });
-
-  actions.appendChild(logoutButton);
-  actions.appendChild(deleteButton);
-
-  accountBox.appendChild(info);
-  accountBox.appendChild(actions);
-
-  window.addEventListener("languagechange", () => {
-    applyPageTranslations();
-    renderAccountSection();
-    renderRecipes();
-  });
-}
+window.addEventListener("languagechange", () => {
+  applyPageTranslations();
+  renderRecipes();
+});
 
 init();

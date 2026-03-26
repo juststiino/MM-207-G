@@ -69,19 +69,57 @@ function makePill(text) {
 }
 
 function makeTag(text) {
-  const span = document.createElement("span");
-  span.className = "recipe-tag";
-  span.textContent = text;
-  return span;
+  const link = document.createElement("a");
+  link.className = "recipe-tag recipe-tag-link";
+  link.textContent = text;
+  link.href = `/index.html?tag=${encodeURIComponent(text)}`;
+
+  link.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  return link;
 }
 
 function makeList(items, ordered = false) {
   const list = document.createElement(ordered ? "ol" : "ul");
-  list.className = "recipe-detail-list";
+  list.className = ordered
+    ? "recipe-detail-list recipe-check-list"
+    : "recipe-detail-list";
 
   for (const item of items || []) {
     const li = document.createElement("li");
-    li.textContent = item;
+
+    if (ordered) {
+      li.className = "recipe-check-item";
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "recipe-check-button";
+      button.setAttribute("aria-pressed", "false");
+
+      const circle = document.createElement("span");
+      circle.className = "recipe-check-circle";
+      circle.setAttribute("aria-hidden", "true");
+
+      const text = document.createElement("span");
+      text.className = "recipe-check-text";
+      text.textContent = item;
+
+      button.appendChild(circle);
+      button.appendChild(text);
+
+      button.addEventListener("click", () => {
+        const isChecked = button.classList.toggle("is-checked");
+        button.setAttribute("aria-pressed", String(isChecked));
+        text.classList.toggle("is-checked", isChecked);
+      });
+
+      li.appendChild(button);
+    } else {
+      li.textContent = item;
+    }
+
     list.appendChild(li);
   }
 
@@ -103,7 +141,7 @@ function applyPageTranslations() {
 
   const navLinks = document.querySelectorAll(".navbar .navButton");
   if (navLinks[0]) navLinks[0].textContent = t("nav.home");
-  if (navLinks[1]) navLinks[1].textContent = t("nav.login");
+  if (navLinks[1]) navLinks[1].textContent = t("nav.myPage");
   if (navLinks[2]) navLinks[2].textContent = t("nav.createRecipe");
   if (navLinks[3]) navLinks[3].textContent = t("nav.myRecipes");
 }

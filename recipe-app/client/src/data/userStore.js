@@ -6,9 +6,14 @@ export class UserStore extends EventTarget {
   constructor() {
     super();
     this.token = localStorage.getItem("token");
-    this.user = localStorage.getItem("user");
-  }
 
+    try {
+      this.user = JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      this.user = null;
+    }
+  }
+  
   setToken(token) {
     this.token = token;
     if (token) {

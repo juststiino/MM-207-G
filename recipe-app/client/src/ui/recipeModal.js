@@ -38,10 +38,16 @@ function makePill(text) {
 }
 
 function makeTag(text) {
-  const span = document.createElement("span");
-  span.className = "recipe-tag";
-  span.textContent = text;
-  return span;
+  const link = document.createElement("a");
+  link.className = "recipe-tag recipe-tag-link";
+  link.textContent = text;
+  link.href = `/index.html?tag=${encodeURIComponent(text)}`;
+
+  link.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  return link;
 }
 
 function makeList(items, ordered = false) {
@@ -131,7 +137,9 @@ export class RecipeModal {
 
     openButton.addEventListener("click", () => {
       if (!recipe.id) return;
-      window.location.href = `/recipe.html?id=${recipe.id}`;
+
+      const url = `${window.location.origin}/recipe.html?id=${recipe.id}`;
+      window.open(url, "_blank", "noopener,noreferrer");
     });
 
     this.headerActions.appendChild(copyButton);

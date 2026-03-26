@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Recipe book</title>
@@ -17,7 +16,7 @@
 
   <nav class="navbar">
     <a href="/index.html" class="navButton">Home</a>
-    <a href="/login.html" class="navButton">Login</a>
+    <a href="/login.html" class="navButton">Min side</a>
     <a href="/createRecipe.html" class="navButton">Create recipe</a>
     <a href="/myRecipe.html" class="navButton">My recipes</a>
   </nav>
@@ -29,18 +28,36 @@
   <template id="user-manager-template">
     <section class="card">
       <h2>User</h2>
-
       <div data-view="logged-in" hidden>
         <p class="hint">
           Logged in as <strong data-username></strong>.
         </p>
-        <button type="button" class="primary" data-delete>
-          Delete account
-        </button>
+
+        <div class="my-page-overview">
+          <a href="/createRecipe.html" class="my-page-card" data-my-page-link="create">
+            <span class="my-page-card-title">Create recipe</span>
+            <span class="my-page-card-text">Create and save a new recipe.</span>
+          </a>
+
+          <a href="/myRecipe.html" class="my-page-card" data-my-page-link="recipes">
+            <span class="my-page-card-title">My recipes</span>
+            <span class="my-page-card-text">View, edit and manage your recipes.</span>
+          </a>
+        </div>
+
+        <div class="account-actions">
+          <button type="button" class="primary" data-logout>
+            Log out
+          </button>
+
+          <button type="button" class="danger" data-delete>
+            Delete account
+          </button>
+        </div>
       </div>
 
-      <div data-view="logged-out" class="row" hidden>
-        <form data-login class="card">
+      <div data-view="logged-out" hidden>
+        <form data-login class="card auth-panel">
           <h3>Login</h3>
 
           <label>
@@ -54,9 +71,16 @@
           </label>
 
           <button type="submit" class="primary">Login</button>
+
+          <p class="auth-switch">
+            <span data-register-prompt>Don't have a user?</span>
+            <button type="button" class="auth-link-button" data-show-register>
+              Register here
+            </button>
+          </p>
         </form>
 
-        <form data-register class="card">
+        <form data-register class="card auth-panel" hidden>
           <h3>Register</h3>
 
           <label>
@@ -68,6 +92,7 @@
             Password (min 6 chars)
             <input name="password" type="password" autocomplete="new-password" required />
           </label>
+
           <label class="tos-consent">
             <input type="checkbox" name="tosAccepted" required />
 
@@ -76,14 +101,20 @@
 
               <span class="hint legal-links">
                 <a href="tos.html" target="_blank" rel="noopener noreferrer" data-legal-link="tos"></a>
-
                 <span class="legal-separator">|</span>
-
                 <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-legal-link="privacy"></a>
               </span>
             </span>
           </label>
+
           <button type="submit" class="primary">Register</button>
+
+          <p class="auth-switch">
+            <span data-login-prompt>Already have a user?</span>
+            <button type="button" class="auth-link-button" data-show-login>
+              Log in here
+            </button>
+          </p>
         </form>
       </div>
 
@@ -110,5 +141,4 @@
 
   <script type="module" src="src/main.js"></script>
 </body>
-
 </html>

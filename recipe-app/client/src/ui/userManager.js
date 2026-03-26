@@ -14,6 +14,9 @@ export class UserManager extends HTMLElement {
 
     this.busy = false;
     this.error = "";
+
+    const params = new URLSearchParams(window.location.search);
+    this.mode = params.get("mode") === "register" ? "register" : "login";
   }
 
   set deps({ store, controller }) {
@@ -43,6 +46,8 @@ export class UserManager extends HTMLElement {
     this.applyTranslations();
     this.bindEvents();
     this.bindLegalModalLinks();
+    this.updateUi();
+
     window.addEventListener("languagechange", () => {
       this.applyTranslations();
       this.updateUi();
@@ -59,16 +64,25 @@ export class UserManager extends HTMLElement {
     this.elLoginForm = this.querySelector("[data-login]");
     this.elRegisterForm = this.querySelector("[data-register]");
     this.elDeleteBtn = this.querySelector("[data-delete]");
+    this.elLogoutBtn = this.querySelector("[data-logout]");
+
+    this.elShowRegister = this.querySelector("[data-show-register]");
+    this.elShowLogin = this.querySelector("[data-show-login]");
+    this.elRegisterPrompt = this.querySelector("[data-register-prompt]");
+    this.elLoginPrompt = this.querySelector("[data-login-prompt]");
 
     this.elError = this.querySelector("[data-error]");
     this.elErrorPrefix = this.querySelector("[data-error] strong");
     this.elErrorText = this.querySelector("[data-error-text]");
+
+    this.elCreateRecipeLink = this.querySelector('[data-my-page-link="create"]');
+    this.elMyRecipesLink = this.querySelector('[data-my-page-link="recipes"]');
   }
 
   applyTranslations() {
     const cardTitle = this.querySelector("section.card h2");
     if (cardTitle) {
-      cardTitle.textContent = tr("ui.user", "User");
+      cardTitle.textContent = tr("ui.myPage", "My page");
     }
 
     const loginTitle = this.elLoginForm?.querySelector("h3");
@@ -85,6 +99,10 @@ export class UserManager extends HTMLElement {
       this.elDeleteBtn.textContent = tr("ui.deleteAccount", "Delete account");
     }
 
+    if (this.elLogoutBtn) {
+      this.elLogoutBtn.textContent = tr("ui.logout", "Log out");
+    }
+
     const loginSubmit = this.elLoginForm?.querySelector('button[type="submit"]');
     if (loginSubmit) {
       loginSubmit.textContent = tr("ui.login", "Login");
@@ -93,6 +111,22 @@ export class UserManager extends HTMLElement {
     const registerSubmit = this.elRegisterForm?.querySelector('button[type="submit"]');
     if (registerSubmit) {
       registerSubmit.textContent = tr("ui.register", "Register");
+    }
+
+    if (this.elShowRegister) {
+      this.elShowRegister.textContent = tr("ui.registerHere", "Register here");
+    }
+
+    if (this.elShowLogin) {
+      this.elShowLogin.textContent = tr("ui.loginHere", "Log in here");
+    }
+
+    if (this.elRegisterPrompt) {
+      this.elRegisterPrompt.textContent = tr("ui.noUserPrompt", "Don't have a user?");
+    }
+
+    if (this.elLoginPrompt) {
+      this.elLoginPrompt.textContent = tr("ui.hasUserPrompt", "Already have a user?");
     }
 
     if (this.elErrorPrefix) {
@@ -142,6 +176,26 @@ export class UserManager extends HTMLElement {
     if (privacyLink) {
       privacyLink.textContent = tr("ui.privacyPolicy", "Privacy Policy");
     }
+
+    const createTitle = this.elCreateRecipeLink?.querySelector(".my-page-card-title");
+    const createText = this.elCreateRecipeLink?.querySelector(".my-page-card-text");
+
+    if (createTitle) {
+      createTitle.textContent = tr("ui.createRecipe", "Create recipe");
+    }
+    if (createText) {
+      createText.textContent = tr("ui.createRecipeDescription", "Create and save a new recipe.");
+    }
+
+    const myRecipesTitle = this.elMyRecipesLink?.querySelector(".my-page-card-title");
+    const myRecipesText = this.elMyRecipesLink?.querySelector(".my-page-card-text");
+
+    if (myRecipesTitle) {
+      myRecipesTitle.textContent = tr("ui.myRecipes", "My recipes");
+    }
+    if (myRecipesText) {
+      myRecipesText.textContent = tr("ui.myRecipesDescription", "View, edit and manage your recipes.");
+    }
   }
 
   updateLoggedInHint() {
@@ -178,6 +232,26 @@ export class UserManager extends HTMLElement {
     if (this.elDeleteBtn) {
       this.elDeleteBtn.addEventListener("click", () => this.handleDelete());
     }
+
+    if (this.elLogoutBtn) {
+      this.elLogoutBtn.addEventListener("click", () => this.handleLogout());
+    }
+
+    if (this.elShowRegister) {
+      this.elShowRegister.addEventListener("click", () => {
+        this.mode = "register";
+        this.setError("");
+        this.updateUi();
+      });
+    }
+
+    if (this.elShowLogin) {
+      this.elShowLogin.addEventListener("click", () => {
+        this.mode = "login";
+        this.setError("");
+        this.updateUi();
+      });
+    }
   }
 
   bindLegalModalLinks() {
@@ -201,11 +275,11 @@ export class UserManager extends HTMLElement {
       if (!modal.hidden && e.key === "Escape") closeModal();
     });
 
-    this.querySelectorAll("a[data-legal]").forEach((a) => {
+    this.querySelectorAll("a[data-legal-link]").forEach((a) => {
       a.addEventListener("click", async (e) => {
         e.preventDefault();
 
-        const kind = a.getAttribute("data-legal");
+        const kind = a.getAttribute("data-legal-link");
         const url = a.getAttribute("href");
 
         title.textContent =
@@ -247,6 +321,11 @@ export class UserManager extends HTMLElement {
     if (this.elLoggedIn) this.elLoggedIn.hidden = !loggedIn;
     if (this.elLoggedOut) this.elLoggedOut.hidden = loggedIn;
 
+    if (!loggedIn) {
+      if (this.elLoginForm) this.elLoginForm.hidden = this.mode !== "login";
+      if (this.elRegisterForm) this.elRegisterForm.hidden = this.mode !== "register";
+    }
+
     this.updateLoggedInHint();
 
     const showError = !!this.error;
@@ -280,11 +359,9 @@ export class UserManager extends HTMLElement {
 
       form.reset();
       window.location.href = "/myRecipe.html";
-    } 
-    catch (err) {
+    } catch (err) {
       this.setError(err.message || tr("errors.loginFailed", "Login failed"));
-    }
-    finally {
+    } finally {
       this.setBusy(false);
     }
   }
@@ -314,20 +391,30 @@ export class UserManager extends HTMLElement {
 
       form.reset();
       window.location.href = "/myRecipe.html";
-    } 
-    catch (err) {
+    } catch (err) {
       this.setError(err.message || tr("errors.registerFailed", "Registration failed"));
-    }
-    finally {
+    } finally {
       this.setBusy(false);
     }
+  }
+
+  handleLogout() {
+    if (this.store?.setUser) {
+      this.store.setUser(null);
+    }
+
+    if (this.store?.setToken) {
+      this.store.setToken(null);
+    }
+
+    window.location.href = "/login.html";
   }
 
   async handleDelete() {
     if (!this.controller) return;
 
     const confirmed = window.confirm(
-      "Are you sure you want to delete your account? Private recipes will be deleted."
+      tr("ui.deleteAccountConfirm", "Are you sure you want to delete your account? Private recipes will be deleted.")
     );
 
     if (!confirmed) return;
@@ -337,6 +424,7 @@ export class UserManager extends HTMLElement {
       this.setBusy(true);
 
       await this.controller.deleteAccount();
+      window.location.href = "/login.html";
     } catch {
       this.setError(tr("errors.deleteFailed", "Failed to delete account"));
     } finally {

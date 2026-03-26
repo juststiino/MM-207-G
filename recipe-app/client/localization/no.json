@@ -14,9 +14,9 @@
   },
   "ui": {
     "user": "Bruker",
-    "login": "Logg inn",
     "register": "Registrer",
     "account": "Konto",
+    "login": "Logg inn",
     "logout": "Logg ut",
     "deleteAccount": "Slett konto",
     "username": "Brukernavn",
@@ -29,13 +29,25 @@
     "loggedInAs": "Logget inn som",
     "error": "Feil:",
     "document": "Dokument",
-    "and": "og"
+    "and": "og",
+    "noUserPrompt": "Har du ikke bruker?",
+    "hasUserPrompt": "Har du allerede bruker?",
+    "registerHere": "Registrer deg her",
+    "loginHere": "Logg inn her",
+    "deleteAccountConfirm": "Er du sikker på at du vil slette kontoen din? Private oppskrifter vil bli slettet.",
+    "createRecipe": "Lag oppskrift",
+    "createRecipeDescription": "Opprett og lagre en ny oppskrift.",
+    "myRecipes": "Mine oppskrifter",
+    "myRecipesDescription": "Se, rediger og administrer oppskriftene dine.",
+    "myPage": "Min side"
   },
   "nav": {
     "home": "Hjem",
     "login": "Logg inn",
     "createRecipe": "Lag oppskrift",
-    "myRecipes": "Mine oppskrifter"
+    "myRecipes": "Mine oppskrifter",
+    "myPage": "Min side"
+
   },
   "pages": {
     "recipeBook": "Oppskriftsbok",
@@ -44,22 +56,22 @@
     "recipe": "Oppskrift"
   },
   "recipes": {
-    "publicRecipes": "Offentlige oppskrifter",
+    "Recipes": "Alle oppskrifter",
     "yourRecipes": "Mine oppskrifter",
     "newRecipe": "Ny oppskrift",
-    "noPublicRecipes": "Ingen offentlige oppskrifter ennå.",
+    "noRecipes": "Ingen oppskrifter ennå.",
     "noRecipesFound": "Fant ingen oppskrifter.",
     "noUserRecipes": "Du har ingen oppskrifter ennå.",
     "loadingRecipes": "Laster oppskrifter...",
     "recipeCreatedSuccessfully": "Oppskriften ble opprettet.",
     "title": "Tittel",
     "imageUrl": "Bilde-URL",
-    "ingredients": "Ingredienser",
-    "ingredientsOnePerLine": "Ingredienser, én per linje",
+    "ingredients": "Ingerdienser",
     "steps": "Fremgangsmåte",
-    "stepsOnePerLine": "Steg, ett per linje",
     "tags": "Tagger",
-    "tagsSeparatedByComma": "Tagger, skilt med komma",
+    "ingredientsPlaceholder": "Skriv en ingrediens per linje. Du trenger ikke bruke - eller nummerering.",
+    "stepsPlaceholder": "Skriv ett steg per linje. Du trenger ikke bruke 1., 2. eller -.",
+    "tagsHelp": "Legg til tagger for å gjøre oppskriften lettere å finne.",
     "servings": "Porsjoner",
     "timeInMinutes": "Tid i minutter",
     "privateRecipe": "Privat oppskrift",
@@ -89,7 +101,12 @@
     "copyRecipeLink": "Kopier oppskriftslenke",
     "linkCopied": "Lenke kopiert",
     "h": "t",
-    "min": "min"
+    "min": "min",
+    "searchRecipes": "Søk",
+    "searchPlaceholder": "Søk...",
+    "noSearchResults": "Ingen oppskrifter funnet.",
+    "tagResults": "Oppskrifter med tag",
+    "noTagResults": "Fant ingen oppskrifter med denne taggen."
   },
   "legal": {
     "tosTitle": "Bruksvilkår",

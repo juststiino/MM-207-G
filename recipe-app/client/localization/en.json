@@ -14,9 +14,9 @@
   },
   "ui": {
     "user": "User",
-    "login": "Login",
     "register": "Register",
     "account": "Account",
+    "login": "Log in",
     "logout": "Logout",
     "deleteAccount": "Delete account",
     "username": "Username",
@@ -29,13 +29,26 @@
     "loggedInAs": "Logged in as",
     "error": "Error:",
     "document": "Document",
-    "and": "and"
+    "and": "and",
+    "noUserPrompt": "Don't have a user?",
+    "hasUserPrompt": "Already have a user?",
+    "registerHere": "Register here",
+    "loginHere": "Log in here",
+    "deleteAccountConfirm": "Are you sure you want to delete your account? Private recipes will be deleted.",
+    "createRecipe": "Create recipe",
+    "createRecipeDescription": "Create and save a new recipe.",
+    "myRecipes": "My recipes",
+    "myRecipesDescription": "View, edit and manage your recipes.",
+    "myPage": "My page"
+
   },
   "nav": {
     "home": "Home",
     "login": "Login",
     "createRecipe": "Create recipe",
-    "myRecipes": "My recipes"
+    "myRecipes": "My recipes",
+    "myPage": "My page"
+
   },
   "pages": {
     "recipeBook": "Recipe book",
@@ -44,10 +57,10 @@
     "recipe": "Recipe"
   },
   "recipes": {
-    "publicRecipes": "Public recipes",
+    "Recipes": "All recipes",
     "yourRecipes": "Your recipes",
     "newRecipe": "New recipe",
-    "noPublicRecipes": "No public recipes yet.",
+    "noRecipes": "No recipes yet.",
     "noRecipesFound": "No recipes found.",
     "noUserRecipes": "You have no recipes yet.",
     "loadingRecipes": "Loading recipes...",
@@ -57,11 +70,11 @@
     "title": "Title",
     "imageUrl": "Image URL",
     "ingredients": "Ingredients",
-    "ingredientsOnePerLine": "Ingredients, one per line",
     "steps": "Steps",
-    "stepsOnePerLine": "Steps, one per line",
     "tags": "Tags",
-    "tagsSeparatedByComma": "Tags, separated by comma",
+    "ingredientsPlaceholder": "Write one ingredient per line. You do not need to use - or numbering.",
+    "stepsPlaceholder": "Write one step per line. You do not need to use 1., 2. or -.",
+    "tagsHelp": "Add tags to make the recipe easier to find.",
     "servings": "Servings",
     "timeInMinutes": "Time in minutes",
     "privateRecipe": "Private recipe",
@@ -89,7 +102,12 @@
     "recipeSavedOffline": "Recipe saved offline and will be uploaded when you are online again.",
     "linkCopied": "Link copied",
     "h": "h",
-    "min": "min"
+    "min": "min",
+    "searchRecipes": "Search recipes",
+    "searchPlaceholder": "Search...",
+    "noSearchResults": "No recipes matched your search.",
+    "tagResults": "Recipes with tag",
+    "noTagResults": "No recipes found with this tag."
   },
   "legal": {
     "tosTitle": "Terms of Service",
