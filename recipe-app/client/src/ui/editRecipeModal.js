@@ -1,4 +1,9 @@
 import { t } from "../modules/i18n.js";
+import {
+  linesToArray,
+  commaListToArray,
+  capitalizeFirst
+} from "../utils/recipeFormUtils.js";
 
 function arrayToLines(value) {
   if (!Array.isArray(value)) return "";
@@ -8,20 +13,6 @@ function arrayToLines(value) {
 function tagsToText(value) {
   if (!Array.isArray(value)) return "";
   return value.join(", ");
-}
-
-function linesToArray(text) {
-  return String(text || "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-}
-
-function commaListToArray(text) {
-  return String(text || "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
 }
 
 function makeField(labelText, input) {
@@ -109,7 +100,7 @@ export class EditRecipeModal {
 
     const imageUrlInput = makeInput("url");
     imageUrlInput.name = "imageUrl";
-    imageUrlInput.value = recipe.imageUrl || "";
+    imageUrlInput.value = recipe.imageSourceUrl || "";
     imageUrlInput.placeholder = t("recipes.imageUrlPlaceholder");
 
     const ingredientsInput = makeTextarea();
@@ -221,11 +212,11 @@ export class EditRecipeModal {
     const formData = new FormData(this.form);
 
     const payload = {
-      title: String(formData.get("title") || "").trim(),
+      title: capitalizeFirst(formData.get("title")),
       imageUrl: String(formData.get("imageUrl") || "").trim() || null,
       ingredients: linesToArray(formData.get("ingredients")),
       steps: linesToArray(formData.get("steps")),
-      tags: commaListToArray(formData.get("tags")),
+      tags: commaListToArray(formData.get("tags"), { lowercase: true }),
       servings: formData.get("servings")
         ? Number(formData.get("servings"))
         : null,

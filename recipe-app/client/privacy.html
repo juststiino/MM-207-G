@@ -3,50 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Privacy Policy</title>
+  <title id="pageTitle">Privacy Policy</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="card">
-    <h1>GDPR</h1>
-    <p>This app will only collect the minimum amount of data requierd to function. The following data is collected:</p>
+    <h1 id="gdprTitle"></h1>
+    <p id="gdprIntro"></p>
+
     <ul>
-      <li>Username</li>
-      <li>Hashed password</li>
-      <li>Confirmation that the user has agreed to the terms of service</li>
+      <li id="gdprUsername"></li>
+      <li id="gdprPassword"></li>
+      <li id="gdprConsent"></li>
     </ul>
 
-    <p>No sensitive personal data is collected. All data is currently stored in memory and is not persisted. A database solution will be added later.</p>
+    <p id="gdprSensitive"></p>
+    <p id="gdprStorage"></p>
+    <p id="gdprWithdraw"></p>
 
-    <p>User consent is required before an account can be created. If the user wants to withdraw the constent, the user account must be deleted.</p>
+    <h1 id="privacyTitle"></h1>
 
-    <h1>Privacy policy</h1>
-
-    <h3>What data is collected?</h3>
-    <p>The app only collects the data necessary to identify users and provide the service</p>
+    <h3 id="privacyCollectedTitle"></h3>
+    <p id="privacyCollectedIntro"></p>
     <ul>
-      <li>Username</li>
-      <li>Hasshed password</li>
-      <li>User-created recipes</li>
+      <li id="privacyCollectedUsername"></li>
+      <li id="privacyCollectedPassword"></li>
+      <li id="privacyCollectedRecipes"></li>
+      <li id="privacyCollectedMetadata"></li>
     </ul>
 
-    <p>No additional personal information is collected.</p>
-
-    <h3>Why does this need to be collected?</h3>
-    <p>The data is used to:</p>
+    <h3 id="privacyWhyTitle"></h3>
+    <p id="privacyWhyIntro"></p>
     <ul>
-      <li>Authenticate users</li>
-      <li>Allow users to create and manage recipes</li>
-      <li>Distinguish between private and public content</li>
+      <li id="privacyWhyAuth"></li>
+      <li id="privacyWhyRecipes"></li>
+      <li id="privacyWhyVisibility"></li>
     </ul>
 
-    <h3>Data handeling and deleting</h3>
-    <p>Users may delete their account at any time. When the account is deleted:</p>
+    <h3 id="privacyDeleteTitle"></h3>
+    <p id="privacyDeleteIntro"></p>
     <ul>
-      <li>All personal user data is removed</li>
-      <li>All private recipes are deleted</li>
-      <li>Public recipes remain available, but without any identifying information. Users who wish to remove public recipes must delete them before deleting their account.</li>
+      <li id="privacyDeleteUserData"></li>
+      <li id="privacyDeletePrivateRecipes"></li>
+      <li id="privacyDeletePublicRecipes"></li>
     </ul>
   </main>
+
+  <script type="module">
+    import { loadTranslations, t } from "./src/modules/i18n.js";
+
+    await loadTranslations();
+
+    document.documentElement.lang = t("meta.lang");
+    document.title = t("legal.privacyPageTitle");
+
+    document.getElementById("gdprTitle").textContent = t("legal.gdprTitle");
+    document.getElementById("gdprIntro").textContent = t("legal.gdprIntro");
+    document.getElementById("gdprUsername").textContent = t("legal.gdprUsername");
+    document.getElementById("gdprPassword").textContent = t("legal.gdprPassword");
+    document.getElementById("gdprConsent").textContent = t("legal.gdprConsent");
+    document.getElementById("gdprSensitive").textContent = t("legal.gdprSensitive");
+    document.getElementById("gdprStorage").textContent = t("legal.gdprStorage");
+    document.getElementById("gdprWithdraw").textContent = t("legal.gdprWithdraw");
+
+    document.getElementById("privacyTitle").textContent = t("legal.privacyTitle");
+    document.getElementById("privacyCollectedTitle").textContent = t("legal.privacyCollectedTitle");
+    document.getElementById("privacyCollectedIntro").textContent = t("legal.privacyCollectedIntro");
+    document.getElementById("privacyCollectedUsername").textContent = t("legal.privacyCollectedUsername");
+    document.getElementById("privacyCollectedPassword").textContent = t("legal.privacyCollectedPassword");
+    document.getElementById("privacyCollectedRecipes").textContent = t("legal.privacyCollectedRecipes");
+    document.getElementById("privacyCollectedMetadata").textContent = t("legal.privacyCollectedMetadata");
+
+    document.getElementById("privacyWhyTitle").textContent = t("legal.privacyWhyTitle");
+    document.getElementById("privacyWhyIntro").textContent = t("legal.privacyWhyIntro");
+    document.getElementById("privacyWhyAuth").textContent = t("legal.privacyWhyAuth");
+    document.getElementById("privacyWhyRecipes").textContent = t("legal.privacyWhyRecipes");
+    document.getElementById("privacyWhyVisibility").textContent = t("legal.privacyWhyVisibility");
+
+    document.getElementById("privacyDeleteTitle").textContent = t("legal.privacyDeleteTitle");
+    document.getElementById("privacyDeleteIntro").textContent = t("legal.privacyDeleteIntro");
+    document.getElementById("privacyDeleteUserData").textContent = t("legal.privacyDeleteUserData");
+    document.getElementById("privacyDeletePrivateRecipes").textContent = t("legal.privacyDeletePrivateRecipes");
+    document.getElementById("privacyDeletePublicRecipes").textContent = t("legal.privacyDeletePublicRecipes");
+  </script>
 </body>
 </html>

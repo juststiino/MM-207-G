@@ -31,6 +31,12 @@
     "recipeFetchFailedServer": "Failed to fetch recipes",
     "userRecipesFetchFailedServer": "Failed to fetch user recipes",
     "imageNotFound": "Image not found",
-    "imageFetchFailedServer": "Failed to fetch image"
+    "imageFetchFailedServer": "Failed to fetch image",
+    "missingRecipeId": "Missing recipe id",
+    "recipeLoadFailed": "Failed to load recipe",
+    "copyLinkFailed": "Failed to copy link",
+    "copyRecipeLink": "Copy recipe link",
+    "linkCopied": "Link copied",
+    "loadingRecipe": "Loading recipe..."
   }
 }

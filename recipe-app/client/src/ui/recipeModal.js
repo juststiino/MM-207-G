@@ -18,9 +18,9 @@ function formatTime(minutes) {
   const hours = Math.floor(total / 60);
   const mins = total % 60;
 
-  if (hours > 0 && mins > 0) return `${hours} h ${mins} min`;
-  if (hours > 0) return `${hours} h`;
-  return `${mins} min`;
+  if (hours > 0 && mins > 0) return `${hours} ${t("recipes.h")} ${mins} ${t("recipes.min")}`;
+  if (hours > 0) return `${hours} ${t("recipes.h")}`;
+  return `${mins} ${t("recipes.min")}`;
 }
 
 function formatDateTime(value) {
@@ -74,6 +74,17 @@ export class RecipeModal {
       throw new Error("Recipe modal elements are missing in HTML.");
     }
 
+    this.header = this.modal.querySelector(".modal-header");
+    this.closeButton = this.modal.querySelector(".modal-close");
+
+    if (!this.header || !this.closeButton) {
+      throw new Error("Recipe modal header elements are missing in HTML.");
+    }
+
+    this.headerActions = document.createElement("div");
+    this.headerActions.className = "modal-header-actions";
+    this.header.insertBefore(this.headerActions, this.closeButton);
+
     this.boundClose = this.close.bind(this);
     this.boundKeydown = this.handleKeydown.bind(this);
 
@@ -92,6 +103,40 @@ export class RecipeModal {
     } = options;
 
     this.title.textContent = recipe.title || t("pages.recipe");
+    this.headerActions.replaceChildren();
+
+    const copyButton = document.createElement("button");
+    copyButton.type = "button";
+    copyButton.className = "icon-button";
+    copyButton.setAttribute("aria-label", t("recipes.copyRecipeLink"));
+    copyButton.setAttribute("title", t("recipes.copyRecipeLink"));
+    copyButton.textContent = "🔗";
+
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(
+          `${window.location.origin}/recipe.html?id=${recipe.id}`
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    const openButton = document.createElement("button");
+    openButton.type = "button";
+    openButton.className = "icon-button";
+    openButton.setAttribute("aria-label", t("recipes.openRecipe"));
+    openButton.setAttribute("title", t("recipes.openRecipe"));
+    openButton.textContent = "↗";
+
+    openButton.addEventListener("click", () => {
+      if (!recipe.id) return;
+      window.location.href = `/recipe.html?id=${recipe.id}`;
+    });
+
+    this.headerActions.appendChild(copyButton);
+    this.headerActions.appendChild(openButton);
+
     this.body.replaceChildren(
       this.buildContent(recipe, {
         showVisibility,
@@ -101,6 +146,7 @@ export class RecipeModal {
         onDelete,
       })
     );
+
     this.modal.hidden = false;
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", this.boundKeydown);
@@ -109,6 +155,7 @@ export class RecipeModal {
   close() {
     this.modal.hidden = true;
     this.body.replaceChildren();
+    this.headerActions.replaceChildren();
     document.body.style.overflow = "";
     document.removeEventListener("keydown", this.boundKeydown);
   }
@@ -178,15 +225,19 @@ export class RecipeModal {
 
     const ingredientsSection = document.createElement("section");
     ingredientsSection.className = "recipe-detail-section";
+
     const ingredientsTitle = document.createElement("h3");
     ingredientsTitle.textContent = t("recipes.ingredients");
+
     ingredientsSection.appendChild(ingredientsTitle);
     ingredientsSection.appendChild(makeList(recipe.ingredients || [], false));
 
     const stepsSection = document.createElement("section");
     stepsSection.className = "recipe-detail-section";
+
     const stepsTitle = document.createElement("h3");
     stepsTitle.textContent = t("recipes.steps");
+
     stepsSection.appendChild(stepsTitle);
     stepsSection.appendChild(makeList(recipe.steps || [], true));
 
@@ -208,39 +259,36 @@ export class RecipeModal {
     info.appendChild(by);
     info.appendChild(created);
     info.appendChild(updated);
-
     footer.appendChild(info);
 
-    if (allowEdit || allowDelete) {
-      const actions = document.createElement("div");
-      actions.className = "recipe-detail-actions";
+    const actions = document.createElement("div");
+    actions.className = "recipe-detail-actions";
 
-      if (allowEdit && typeof onEdit === "function") {
-        const editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "primary";
-        editButton.textContent = t("recipes.editRecipe");
-        editButton.addEventListener("click", () => {
-          this.close();
-          onEdit(recipe);
-        });
-        actions.appendChild(editButton);
-      }
+    if (allowEdit && typeof onEdit === "function") {
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "primary";
+      editButton.textContent = t("recipes.editRecipe");
+      editButton.addEventListener("click", () => {
+        this.close();
+        onEdit(recipe);
+      });
+      actions.appendChild(editButton);
+    }
 
-      if (allowDelete && typeof onDelete === "function") {
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.className = "danger";
-        deleteButton.textContent = t("recipes.deleteRecipe");
+    if (allowDelete && typeof onDelete === "function") {
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "danger";
+      deleteButton.textContent = t("recipes.deleteRecipe");
+      deleteButton.addEventListener("click", () => {
+        this.close();
+        onDelete(recipe);
+      });
+      actions.appendChild(deleteButton);
+    }
 
-        deleteButton.addEventListener("click", () => {
-          this.close();
-          onDelete(recipe);
-        });
-
-        actions.appendChild(deleteButton);
-      }
-
+    if (actions.children.length > 0) {
       footer.appendChild(actions);
     }
 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Recipe</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="./public/manifest.json" />
+  <link rel="icon" href="./public/icon-192.png" />
+</head>
+
+<body>
+  <header class="site-header">
+    <img src="./public/icon-192.png" alt="Recipe book logo" class="logo" />
+    <h1>Recipe</h1>
+  </header>
+
+  <nav class="navbar">
+    <a href="/index.html" class="navButton">Home</a>
+    <a href="/login.html" class="navButton">Login</a>
+    <a href="/createRecipe.html" class="navButton">Create recipe</a>
+    <a href="/myRecipe.html" class="navButton">My recipes</a>
+  </nav>
+
+  <main>
+    <section class="card recipe-page-card">
+      <p id="msg" class="hint"></p>
+      <div id="singleRecipeContainer"></div>
+    </section>
+  </main>
+
+  <script type="module" src="./src/ui/singleRecipe.js"></script>
+</body>
+</html>

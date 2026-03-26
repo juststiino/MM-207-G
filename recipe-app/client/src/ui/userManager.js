@@ -1,6 +1,3 @@
-// Web component for register, login and delete account
-// Depends on UserStore and UserController
-
 import { t } from "../modules/i18n.js";
 
 function tr(key, fallback) {
@@ -23,7 +20,6 @@ export class UserManager extends HTMLElement {
     this.store = store;
     this.controller = controller;
 
-    // Observe and rerender when store changes
     this.store.addEventListener("change", () => this.updateUi());
 
     this.render();
@@ -47,7 +43,10 @@ export class UserManager extends HTMLElement {
     this.applyTranslations();
     this.bindEvents();
     this.bindLegalModalLinks();
-    this.updateUi();
+    window.addEventListener("languagechange", () => {
+      this.applyTranslations();
+      this.updateUi();
+    });
   }
 
   cacheElements() {
@@ -100,7 +99,6 @@ export class UserManager extends HTMLElement {
       this.elErrorPrefix.textContent = `${tr("ui.error", "Error:")}`;
     }
 
-    // Login form labels
     const loginUsernameInput = this.elLoginForm?.querySelector('input[name="username"]');
     const loginPasswordInput = this.elLoginForm?.querySelector('input[name="password"]');
 
@@ -115,7 +113,6 @@ export class UserManager extends HTMLElement {
       loginPasswordLabel.childNodes[0].textContent = `${tr("ui.password", "Password")}\n`;
     }
 
-    // Register form labels
     const registerUsernameInput = this.elRegisterForm?.querySelector('input[name="username"]');
     const registerPasswordInput = this.elRegisterForm?.querySelector('input[name="password"]');
 
@@ -130,30 +127,20 @@ export class UserManager extends HTMLElement {
       registerPasswordLabel.childNodes[0].textContent = `${tr("ui.passwordMin", "Password (min 6 chars)")}\n`;
     }
 
-    // Terms of service consent label
-    const tosCheckbox = this.elRegisterForm?.querySelector('input[name="tosAccepted"]');
-    const tosLabel = tosCheckbox?.closest("label");
-    if (tosLabel && tosLabel.childNodes[0]) {
-      tosLabel.childNodes[0].textContent = `${tr("ui.tosConsent", "Terms of service consent")}\n`;
+    const tosLabelText = this.elRegisterForm?.querySelector("[data-tos-label]");
+    if (tosLabelText) {
+      tosLabelText.textContent = tr("ui.tosConsent", "Terms of service consent");
     }
 
-    // Legal agreement text and links
-    const hint = this.elRegisterForm?.querySelector("span.hint");
-    const tosLink = this.elRegisterForm?.querySelector('a[data-legal="tos"]');
-    const privacyLink = this.elRegisterForm?.querySelector('a[data-legal="privacy"]');
+    const tosLink = this.elRegisterForm?.querySelector('a[data-legal-link="tos"]');
+    const privacyLink = this.elRegisterForm?.querySelector('a[data-legal-link="privacy"]');
 
-    if (hint && tosLink && privacyLink) {
+    if (tosLink) {
       tosLink.textContent = tr("ui.termsOfService", "Terms of Service");
-      privacyLink.textContent = tr("ui.privacyPolicy", "Privacy Policy");
+    }
 
-      hint.textContent = "";
-      hint.append(
-        document.createTextNode(`${tr("ui.agreePrefix", "I agree to the")} `),
-        tosLink,
-        document.createTextNode(` ${tr("ui.and", "and")} `),
-        privacyLink,
-        document.createTextNode(".")
-      );
+    if (privacyLink) {
+      privacyLink.textContent = tr("ui.privacyPolicy", "Privacy Policy");
     }
   }
 
@@ -206,17 +193,14 @@ export class UserManager extends HTMLElement {
       title.textContent = tr("ui.document", "Document");
     };
 
-    // Close on backdrop or close button
     modal.querySelectorAll("[data-modal-close]").forEach((el) => {
       el.addEventListener("click", closeModal);
     });
 
-    // Close on Escape
     document.addEventListener("keydown", (e) => {
       if (!modal.hidden && e.key === "Escape") closeModal();
     });
 
-    // Intercept legal links inside this component
     this.querySelectorAll("a[data-legal]").forEach((a) => {
       a.addEventListener("click", async (e) => {
         e.preventDefault();
@@ -238,7 +222,6 @@ export class UserManager extends HTMLElement {
           const html = await res.text();
           const doc = new DOMParser().parseFromString(html, "text/html");
 
-          // Prefer main, fallback to body
           const main = doc.querySelector("main");
           content.innerHTML = main ? main.innerHTML : doc.body.innerHTML;
         } catch {
@@ -270,7 +253,6 @@ export class UserManager extends HTMLElement {
     if (this.elError) this.elError.hidden = !showError;
     if (this.elErrorText) this.elErrorText.textContent = this.error;
 
-    // Disable inputs while busy
     const disable = this.busy;
     const inputs = this.querySelectorAll("input, button");
     inputs.forEach((el) => {

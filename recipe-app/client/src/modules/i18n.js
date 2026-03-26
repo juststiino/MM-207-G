@@ -1,19 +1,9 @@
 const translations = {};
 let currentLanguage = "en";
 
-export async function loadTranslations() {
-  const [enRes, noRes] = await Promise.all([
-    fetch("/localization/en.json"),
-    fetch("/localization/no.json")
-  ]);
+const STORAGE_KEY = "language";
 
-  translations.en = await enRes.json();
-  translations.no = await noRes.json();
-
-  currentLanguage = getLanguage();
-}
-
-export function getLanguage() {
+function detectBrowserLanguage() {
   const langs = navigator.languages || [navigator.language];
 
   for (const lang of langs) {
@@ -31,10 +21,31 @@ export function getLanguage() {
   return "en";
 }
 
+export async function loadTranslations() {
+  const [enRes, noRes] = await Promise.all([
+    fetch("/localization/en.json"),
+    fetch("/localization/no.json")
+  ]);
+
+  translations.en = await enRes.json();
+  translations.no = await noRes.json();
+
+  currentLanguage = localStorage.getItem(STORAGE_KEY) || detectBrowserLanguage();
+}
+
+export function getLanguage() {
+  return currentLanguage;
+}
+
 export function setLanguage(lang) {
-  if (translations[lang]) {
-    currentLanguage = lang;
-  }
+  if (!translations[lang]) return;
+
+  currentLanguage = lang;
+  localStorage.setItem(STORAGE_KEY, lang);
+
+  window.dispatchEvent(new CustomEvent("languagechange", {
+    detail: { language: lang }
+  }));
 }
 
 export function t(path) {

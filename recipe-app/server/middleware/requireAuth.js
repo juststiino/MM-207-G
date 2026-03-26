@@ -2,17 +2,20 @@
 
 import { verifyToken } from "../services/authService.js";
 
-function requireAuth(req, res, next) {
-  const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+export function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization || "";
 
-  const verificationRes = verifyToken(token);
-  if (!verificationRes || !verificationRes.id) {
+  if (!authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  req.user = { id: verificationRes.id, username: verificationRes.username };
-  return next();
-}
+  const token = authHeader.slice(7).trim();
+  const user = verifyToken(token);
 
-export { requireAuth };
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  req.user = user;
+  next();
+}

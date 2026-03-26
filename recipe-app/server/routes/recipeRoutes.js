@@ -4,6 +4,7 @@ import { validateRecipe } from "../middleware/validateRecipe.js";
 import { store } from "../store/postgresStore.js";
 import { downloadImageFromUrl } from "../services/imageService.js";
 import { t } from "../i18n.js";
+import { optionalAuth } from "../middleware/optionalAuth.js";
 
 const router = Router();
 
@@ -29,6 +30,7 @@ function mapDbRecipeToClient(recipe) {
     servings: recipe.servings,
     timeMinutes: recipe.time_minutes,
     imageUrl: getRecipeImageUrl(recipe),
+    imageSourceUrl: recipe.image_source_url || recipe.image_url || null,
     isPrivate: recipe.is_private === true,
     ownerUserId: recipe.user_id,
     username: recipe.username,
@@ -48,8 +50,6 @@ async function findUserRecipeById(user, id) {
     recipe,
   };
 }
-
-
 
 router.post("/", requireAuth, validateRecipe, async (req, res) => {
   try {
@@ -78,9 +78,7 @@ router.post("/", requireAuth, validateRecipe, async (req, res) => {
     return res.status(201).json({
       recipe: mapDbRecipeToClient(recipe),
     });
-
   } catch (error) {
-
     console.error(error);
 
     if (error.status) {
@@ -96,19 +94,14 @@ router.post("/", requireAuth, validateRecipe, async (req, res) => {
   }
 });
 
-
-
 router.get("/", async (req, res) => {
   try {
-
     const recipes = await store.getPublicRecipes();
 
     return res.json({
       recipes: recipes.map(mapDbRecipeToClient),
     });
-
   } catch (error) {
-
     console.error(error);
 
     return res.status(500).json({
@@ -117,19 +110,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-
-
 router.get("/mine", requireAuth, async (req, res) => {
   try {
-
     const recipes = await store.getRecipesByUserId(req.user.id);
 
     return res.json({
       recipes: recipes.map(mapDbRecipeToClient),
     });
-
   } catch (error) {
-
     console.error(error);
 
     return res.status(500).json({
@@ -138,11 +126,45 @@ router.get("/mine", requireAuth, async (req, res) => {
   }
 });
 
+router.get("/:id", optionalAuth, async (req, res) => {
+  try {
+    const recipe = await store.getRecipeById(req.params.id);
 
+    if (!recipe) {
+      return res.status(404).json({
+        error: t(req, "errors.recipeNotFound"),
+      });
+    }
+
+    console.log("recipe.user_id", recipe.user_id);
+    console.log("req.user?.id", req.user?.id);
+
+    const isOwner =
+      req.user &&
+      String(req.user.id) === String(recipe.user_id);
+
+    // privat + ikke eier → ikke lov
+    if (recipe.is_private && !isOwner) {
+      return res.status(403).json({
+        error: t(req, "errors.recipeNotFound"),
+      });
+    }
+
+    return res.json({
+      recipe: mapDbRecipeToClient(recipe),
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: t(req, "errors.recipeFetchFailedServer"),
+    });
+  }
+});
 
 router.get("/:id/image", async (req, res) => {
   try {
-
     const image = await store.getRecipeImageById(req.params.id);
 
     if (!image || !image.image_data || !image.image_mime_type) {
@@ -152,12 +174,10 @@ router.get("/:id/image", async (req, res) => {
     }
 
     res.setHeader("Content-Type", image.image_mime_type);
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
 
     return res.send(image.image_data);
-
   } catch (error) {
-
     console.error(error);
 
     return res.status(500).json({
@@ -166,11 +186,8 @@ router.get("/:id/image", async (req, res) => {
   }
 });
 
-
-
 router.put("/:id", requireAuth, validateRecipe, async (req, res) => {
   try {
-
     const user = { id: req.user.id };
 
     const found = await findUserRecipeById(user, req.params.id);
@@ -181,14 +198,16 @@ router.put("/:id", requireAuth, validateRecipe, async (req, res) => {
       });
     }
 
-    let imagePayload = {
-      imageData: null,
-      imageMimeType: null,
-      imageSourceUrl: null,
-    };
+    let imagePayload;
 
     if (req.recipe.imageUrl) {
       imagePayload = await downloadImageFromUrl(req.recipe.imageUrl);
+    } else {
+      imagePayload = {
+        imageData: found.recipe.image_data ?? null,
+        imageMimeType: found.recipe.image_mime_type ?? null,
+        imageSourceUrl: found.recipe.image_source_url ?? null,
+      };
     }
 
     const updated = await store.updateRecipe(req.params.id, {
@@ -205,9 +224,7 @@ router.put("/:id", requireAuth, validateRecipe, async (req, res) => {
     return res.json({
       recipe: mapDbRecipeToClient(updated),
     });
-
   } catch (error) {
-
     console.error(error);
 
     if (error.status) {
@@ -223,11 +240,8 @@ router.put("/:id", requireAuth, validateRecipe, async (req, res) => {
   }
 });
 
-
-
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
-
     const user = { id: req.user.id };
 
     const found = await findUserRecipeById(user, req.params.id);
@@ -249,9 +263,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
     return res.status(200).json({
       message: "ok",
     });
-
   } catch (error) {
-
     console.error(error);
 
     return res.status(500).json({
@@ -259,7 +271,5 @@ router.delete("/:id", requireAuth, async (req, res) => {
     });
   }
 });
-
-
 
 export const recipeRoutes = router;

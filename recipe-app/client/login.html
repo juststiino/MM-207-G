@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Recipe book</title>
@@ -7,6 +8,7 @@
   <link rel="manifest" href="./public/manifest.json">
   <link rel="icon" href="./public/icon-192.png">
 </head>
+
 <body>
   <header class="site-header">
     <img src="./public/icon-192.png" alt="Recipe book logo" class="logo" />
@@ -66,18 +68,21 @@
             Password (min 6 chars)
             <input name="password" type="password" autocomplete="new-password" required />
           </label>
+          <label class="tos-consent">
+            <input type="checkbox" name="tosAccepted" required />
 
-          <label>
-            Terms of service consent
-            <span class="inline">
-              <input type="checkbox" name="tosAccepted" required />
-              <span class="hint">
-                I agree to the <a href="tos.html" data-legal="tos">Terms of Service</a>
-                and <a href="privacy.html" data-legal="privacy">Privacy Policy</a>.
+            <span class="tos-consent-content">
+              <span data-tos-label>Terms of service consent</span>
+
+              <span class="hint legal-links">
+                <a href="tos.html" target="_blank" rel="noopener noreferrer" data-legal-link="tos"></a>
+
+                <span class="legal-separator">|</span>
+
+                <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-legal-link="privacy"></a>
               </span>
             </span>
           </label>
-
           <button type="submit" class="primary">Register</button>
         </form>
       </div>
@@ -87,7 +92,7 @@
       </p>
     </section>
   </template>
-  
+
   <div class="modal" id="legalModal" hidden>
     <div class="modal-backdrop" data-modal-close></div>
 
@@ -105,4 +110,5 @@
 
   <script type="module" src="src/main.js"></script>
 </body>
+
 </html>

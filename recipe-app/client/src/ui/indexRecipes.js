@@ -1,6 +1,7 @@
 import { RecipeStore } from "../data/recipeStore.js";
 import { renderRecipeGallery } from "./recipeCard.js";
 import { RecipeModal } from "./recipeModal.js";
+import { EditRecipeModal } from "./editRecipeModal.js";
 import { loadTranslations, t } from "../modules/i18n.js";
 import { initNavbar } from "./navbar.js";
 
@@ -8,6 +9,7 @@ await loadTranslations();
 
 const recipeStore = new RecipeStore();
 const recipeModal = new RecipeModal();
+const editRecipeModal = new EditRecipeModal(recipeStore);
 
 const recipeList = document.getElementById("recipeList");
 const msg = document.getElementById("msg");
@@ -39,6 +41,52 @@ function applyPageTranslations() {
   }
 }
 
+function getCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
+}
+
+function isOwner(recipe) {
+  const user = getCurrentUser();
+  if (!user || !recipe) return false;
+
+  return String(recipe.ownerUserId) === String(user.id);
+}
+
+function handleRecipeSaved(updatedRecipe) {
+  const recipes = recipeStore.getRecipes().map((recipe) =>
+    String(recipe.id) === String(updatedRecipe.id) ? updatedRecipe : recipe
+  );
+
+  recipeStore.setRecipes(recipes);
+}
+
+function openEditRecipe(recipe) {
+  editRecipeModal.open(recipe, {
+    onSaved: handleRecipeSaved,
+  });
+}
+
+async function handleRecipeDeleted(recipe) {
+  const confirmed = window.confirm(`${t("recipes.deleteConfirmPrefix")} "${recipe.title}"?`);
+  if (!confirmed) return;
+
+  try {
+    await recipeStore.deleteRecipe(recipe.id);
+
+    const recipes = recipeStore.getRecipes().filter(
+      (item) => String(item.id) !== String(recipe.id)
+    );
+
+    recipeStore.setRecipes(recipes);
+  } catch (error) {
+    alert(error.message || t("errors.recipeDeleteFailed"));
+  }
+}
+
 function renderRecipes() {
   const recipes = recipeStore.getRecipes();
 
@@ -52,7 +100,13 @@ function renderRecipes() {
 
   renderRecipeGallery(recipeList, recipes, {
     emptyText: t("recipes.noPublicRecipes"),
-    onOpen: (recipe) => recipeModal.open(recipe),
+    onOpen: (recipe) =>
+      recipeModal.open(recipe, {
+        allowEdit: isOwner(recipe),
+        allowDelete: isOwner(recipe),
+        onEdit: openEditRecipe,
+        onDelete: handleRecipeDeleted,
+      }),
   });
 }
 
@@ -71,5 +125,10 @@ async function init() {
     if (msg) msg.textContent = error.message || t("errors.recipesLoadFailed");
   }
 }
+
+window.addEventListener("languagechange", () => {
+  applyPageTranslations();
+  renderRecipes();
+});
 
 init();

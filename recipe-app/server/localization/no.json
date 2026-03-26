@@ -31,6 +31,12 @@
     "recipeFetchFailedServer": "Klarte ikke å hente oppskrifter",
     "userRecipesFetchFailedServer": "Klarte ikke å hente brukerens oppskrifter",
     "imageNotFound": "Bilde ikke funnet",
-    "imageFetchFailedServer": "Klarte ikke å hente bildet"
+    "imageFetchFailedServer": "Klarte ikke å hente bildet",
+    "missingRecipeId": "Mangler oppskrifts-id",
+    "recipeLoadFailed": "Kunne ikke laste oppskrift",
+    "copyLinkFailed": "Kunne ikke kopiere lenken",
+    "copyRecipeLink": "Kopier oppskriftslenke",
+    "linkCopied": "Lenke kopiert",
+    "loadingRecipe": "Laster oppskrift..."
   }
 }

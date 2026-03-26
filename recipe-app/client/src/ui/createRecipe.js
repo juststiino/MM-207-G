@@ -1,14 +1,23 @@
 import { RecipeStore } from "../data/recipeStore.js";
-import { request } from "../data/api.js";
 import { loadTranslations, t } from "../modules/i18n.js";
 import { initNavbar } from "./navbar.js";
+import { linesToArray, commaListToArray, capitalizeFirst } from "../utils/recipeFormUtils.js";
 
 const recipeStore = new RecipeStore();
 
 await loadTranslations();
 
-const form = document.getElementById("recipeForm");
 const msg = document.getElementById("msg");
+const form = document.getElementById("recipeForm");
+
+if (form && msg && form.parentNode) {
+  form.parentNode.insertBefore(msg, form);
+}
+
+function showMessage(text, type = "info") {
+  msg.textContent = text;
+  msg.className = `message message-${type}`;
+}
 
 function applyPageTranslations() {
   document.title = t("pages.createRecipe");
@@ -59,22 +68,12 @@ function applyPageTranslations() {
   if (submitButton) submitButton.textContent = t("recipes.saveRecipe");
 }
 
-function linesToArray(value) {
-  return String(value || "")
-    .split("\n")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function commaListToArray(value) {
-  return String(value || "")
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-}
-
 applyPageTranslations();
 initNavbar();
+
+window.addEventListener("languagechange", () => {
+  applyPageTranslations();
+});
 
 if (!localStorage.getItem("token")) {
   window.location.href = "/login.html";
@@ -84,13 +83,19 @@ form?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   msg.textContent = "";
+  msg.className = "";
 
-  const title = document.getElementById("title").value.trim();
+  const title = capitalizeFirst(
+    document.getElementById("title").value
+  );
+
   const imageUrl = document.getElementById("imageUrl").value.trim();
   const ingredients = linesToArray(document.getElementById("ingredients").value);
   const steps = linesToArray(document.getElementById("steps").value);
-  const tags = commaListToArray(document.getElementById("tags").value);
-
+  const tags = commaListToArray(
+    document.getElementById("tags").value,
+    { lowercase: true }
+  );
   const servingsRaw = document.getElementById("servings").value.trim();
   const timeMinutesRaw = document.getElementById("timeMinutes").value.trim();
   const isPrivate = document.getElementById("isPrivate").checked;
@@ -109,13 +114,16 @@ form?.addEventListener("submit", async (e) => {
   try {
     const created = await recipeStore.createRecipe(payload);
 
-    msg.textContent = created.offline
+  showMessage(
+    created.offline
       ? t("recipes.recipeSavedOffline")
-      : t("recipes.recipeCreatedSuccessfully");
+      : t("recipes.recipeCreatedSuccessfully"),
+    "success"
+  );
 
     form.reset();
   } catch (error) {
-    msg.textContent = t("errors.recipeCreateFailed");
+    showMessage(t("errors.recipeCreateFailed"), "error");
     console.error(error);
   }
 });

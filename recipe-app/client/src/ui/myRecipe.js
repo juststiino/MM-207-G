@@ -173,6 +173,12 @@ function renderAccountSection() {
 
   accountBox.appendChild(info);
   accountBox.appendChild(actions);
+
+  window.addEventListener("languagechange", () => {
+    applyPageTranslations();
+    renderAccountSection();
+    renderRecipes();
+  });
 }
 
 init();

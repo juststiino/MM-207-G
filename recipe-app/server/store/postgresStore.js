@@ -1,4 +1,6 @@
-import { pool } from "../db.js";
+import {
+  pool
+} from "../db.js";
 
 export const store = {
   async createUser(user) {
@@ -62,24 +64,26 @@ export const store = {
   async getRecipeById(id) {
     const result = await pool.query(
       `SELECT
-        r.id,
-        r.title,
-        r.ingredients,
-        r.steps,
-        r.tags,
-        r.servings,
-        r.time_minutes,
-        r.image_url,
-        r.image_source_url,
-        (r.image_data IS NOT NULL) AS has_image,
-        r.created_at,
-        r.updated_at,
-        r.user_id,
-        r.is_private,
-        u.username
-      FROM recipes r
-      LEFT JOIN users u ON u.id = r.user_id
-      WHERE r.id = $1`,
+      r.id,
+      r.title,
+      r.ingredients,
+      r.steps,
+      r.tags,
+      r.servings,
+      r.time_minutes,
+      r.image_url,
+      r.image_source_url,
+      r.image_data,
+      r.image_mime_type,
+      (r.image_data IS NOT NULL) AS has_image,
+      r.created_at,
+      r.updated_at,
+      r.user_id,
+      r.is_private,
+      u.username
+    FROM recipes r
+    LEFT JOIN users u ON u.id = r.user_id
+    WHERE r.id = $1`,
       [id]
     );
 

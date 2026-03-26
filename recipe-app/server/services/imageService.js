@@ -1,3 +1,5 @@
+import sharp from "sharp";
+
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -5,8 +7,11 @@ const ALLOWED_IMAGE_TYPES = new Set([
   "image/gif",
 ]);
 
-const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_DOWNLOAD_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_OUTPUT_SIZE_BYTES = 1 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 10000;
+const MAX_WIDTH = 800;
+const WEBP_QUALITY = 82;
 
 function isHttpUrl(value) {
   try {
@@ -22,6 +27,39 @@ function makeImageError(key, status = 400) {
   error.status = status;
   error.translationKey = key;
   return error;
+}
+
+async function optimizeImage(buffer) {
+  let pipeline = sharp(buffer, { animated: false }).rotate();
+
+  const metadata = await pipeline.metadata();
+
+  if (metadata.width && metadata.width > MAX_WIDTH) {
+    pipeline = pipeline.resize({
+      width: MAX_WIDTH,
+      withoutEnlargement: true,
+    });
+  }
+
+  const outputBuffer = await pipeline
+    .webp({
+      quality: WEBP_QUALITY,
+      effort: 4,
+    })
+    .toBuffer();
+
+  if (outputBuffer.length === 0) {
+    throw makeImageError("errors.emptyImage");
+  }
+
+  if (outputBuffer.length > MAX_OUTPUT_SIZE_BYTES) {
+    throw makeImageError("errors.imageTooLarge");
+  }
+
+  return {
+    imageData: outputBuffer,
+    imageMimeType: "image/webp",
+  };
 }
 
 export async function downloadImageFromUrl(imageUrl) {
@@ -56,25 +94,27 @@ export async function downloadImageFromUrl(imageUrl) {
     const contentLengthHeader = response.headers.get("content-length");
     if (contentLengthHeader) {
       const contentLength = Number(contentLengthHeader);
-      if (!Number.isNaN(contentLength) && contentLength > MAX_IMAGE_SIZE_BYTES) {
+      if (!Number.isNaN(contentLength) && contentLength > MAX_DOWNLOAD_SIZE_BYTES) {
         throw makeImageError("errors.imageTooLarge");
       }
     }
 
     const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const originalBuffer = Buffer.from(arrayBuffer);
 
-    if (buffer.length === 0) {
+    if (originalBuffer.length === 0) {
       throw makeImageError("errors.emptyImage");
     }
 
-    if (buffer.length > MAX_IMAGE_SIZE_BYTES) {
+    if (originalBuffer.length > MAX_DOWNLOAD_SIZE_BYTES) {
       throw makeImageError("errors.imageTooLarge");
     }
 
+    const optimized = await optimizeImage(originalBuffer);
+
     return {
-      imageData: buffer,
-      imageMimeType: mimeType,
+      imageData: optimized.imageData,
+      imageMimeType: optimized.imageMimeType,
       imageSourceUrl: imageUrl,
     };
   } catch (error) {
@@ -82,7 +122,11 @@ export async function downloadImageFromUrl(imageUrl) {
       throw makeImageError("errors.imageDownloadTimedOut");
     }
 
-    throw error;
+    if (error.translationKey) {
+      throw error;
+    }
+
+    throw makeImageError("errors.imageDownloadFailed");
   } finally {
     clearTimeout(timeout);
   }

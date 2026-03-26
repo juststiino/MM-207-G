@@ -7,9 +7,9 @@ function formatTime(minutes) {
   const hours = Math.floor(total / 60);
   const mins = total % 60;
 
-  if (hours > 0 && mins > 0) return `${hours} h ${mins} min`;
-  if (hours > 0) return `${hours} h`;
-  return `${mins} min`;
+  if (hours > 0 && mins > 0) return `${hours} ${t("recipes.h")} ${mins} ${t("recipes.min")}`;
+  if (hours > 0) return `${hours} ${t("recipes.h")}`;
+  return `${mins} ${t("recipes.min")}`;
 }
 
 function normalizeTags(tags) {

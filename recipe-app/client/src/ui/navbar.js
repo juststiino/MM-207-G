@@ -1,4 +1,4 @@
-import { loadTranslations, t } from "../modules/i18n.js";
+import { loadTranslations, t, getLanguage, setLanguage } from "../modules/i18n.js";
 
 await loadTranslations();
 
@@ -13,6 +13,11 @@ function updateNavLabels() {
   if (navLinks[1]) navLinks[1].textContent = t("nav.login");
   if (navLinks[2]) navLinks[2].textContent = t("nav.createRecipe");
   if (navLinks[3]) navLinks[3].textContent = t("nav.myRecipes");
+
+  const languageButton = document.querySelector("[data-language-toggle]");
+  if (languageButton) {
+    languageButton.textContent = getLanguage() === "no" ? "NO" : "EN";
+  }
 }
 
 function updateNavVisibility() {
@@ -36,10 +41,35 @@ function protectLink(selector, targetIfLoggedOut = "/login.html") {
   });
 }
 
+function initLanguageToggle() {
+  let button = document.querySelector("[data-language-toggle]");
+
+  if (!button) {
+    const navbar = document.querySelector(".navbar");
+    if (!navbar) return;
+
+    button = document.createElement("button");
+    button.type = "button";
+    button.className = "navButton lang-button";
+    button.setAttribute("data-language-toggle", "");
+    navbar.appendChild(button);
+  }
+
+  button.onclick = () => {
+    const next = getLanguage() === "no" ? "en" : "no";
+    setLanguage(next);
+  };
+}
+
 export function initNavbar() {
+  initLanguageToggle();
   updateNavLabels();
   updateNavVisibility();
 
   protectLink('.navbar a[href="/createRecipe.html"]');
   protectLink('.navbar a[href="/myRecipe.html"]');
+
+  window.addEventListener("languagechange", () => {
+    updateNavLabels();
+  });
 }

@@ -51,14 +51,14 @@ function applyPendingToRecipes(recipes) {
   for (const item of pending) {
     if (item.type === "update") {
       merged = merged.map((recipe) =>
-        sameId(recipe.id, item.id)
-          ? {
-              ...recipe,
-              ...item.recipe,
-              id: item.id,
-              offline: true,
-            }
-          : recipe
+        sameId(recipe.id, item.id) ?
+        {
+          ...recipe,
+          ...item.recipe,
+          id: item.id,
+          offline: true,
+        } :
+        recipe
       );
     }
 
@@ -127,48 +127,48 @@ export class RecipeStore extends EventTarget {
     }
   }
 
-async createRecipe(recipe) {
-  try {
-    const res = await request("/api/recipes", {
-      method: "POST",
-      body: JSON.stringify(recipe),
-    });
+  async createRecipe(recipe) {
+    try {
+      const res = await request("/api/recipes", {
+        method: "POST",
+        body: JSON.stringify(recipe),
+      });
 
-    const created = res.recipe;
+      const created = res.recipe;
 
-    const mine = readLocal(CACHE_KEYS.mine);
-    const newMine = [created, ...mine];
+      const mine = readLocal(CACHE_KEYS.mine);
+      const newMine = [created, ...mine];
 
-    saveLocal(CACHE_KEYS.mine, newMine);
-    this.setRecipes(newMine);
+      saveLocal(CACHE_KEYS.mine, newMine);
+      this.setRecipes(newMine);
 
-    return created;
-  } catch (error) {
-    const offlineRecipe = {
-      ...recipe,
-      id: makeOfflineId(),
-      offline: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      username: JSON.parse(localStorage.getItem("user") || "null")?.username || "You",
-    };
+      return created;
+    } catch (error) {
+      const offlineRecipe = {
+        ...recipe,
+        id: makeOfflineId(),
+        offline: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        username: JSON.parse(localStorage.getItem("user") || "null")?.username || "You",
+      };
 
-    const mine = readLocal(CACHE_KEYS.mine);
-    const newMine = [offlineRecipe, ...mine];
+      const mine = readLocal(CACHE_KEYS.mine);
+      const newMine = [offlineRecipe, ...mine];
 
-    saveLocal(CACHE_KEYS.mine, newMine);
-    this.setRecipes(newMine);
+      saveLocal(CACHE_KEYS.mine, newMine);
+      this.setRecipes(newMine);
 
-    const pending = readPending();
-    pending.push({
-      type: "create",
-      recipe: offlineRecipe,
-    });
-    savePending(pending);
+      const pending = readPending();
+      pending.push({
+        type: "create",
+        recipe: offlineRecipe,
+      });
+      savePending(pending);
 
-    return offlineRecipe;
+      return offlineRecipe;
+    }
   }
-}
 
   async updateRecipe(id, recipe) {
     try {
@@ -232,6 +232,14 @@ async createRecipe(recipe) {
     const mine = readLocal(CACHE_KEYS.mine).filter((item) => item.id !== id);
     saveLocal(CACHE_KEYS.mine, mine);
   }
+
+  async loadRecipeById(id) {
+    const res = await request(`/api/recipes/${id}`, {
+      method: "GET",
+    });
+
+    return res.recipe;
+  }
 }
 
 export async function syncPending() {
@@ -247,7 +255,9 @@ export async function syncPending() {
   for (const item of pending) {
     try {
       if (item.type === "create") {
-        const recipeToSend = { ...item.recipe };
+        const recipeToSend = {
+          ...item.recipe
+        };
         delete recipeToSend.id;
         delete recipeToSend.offline;
 

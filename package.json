@@ -2,7 +2,9 @@
   "dependencies": {
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "pg": "^8.19.0"
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.19.0",
+    "sharp": "^0.34.5"
   },
   "name": "mm-207-g",
   "version": "1.0.0",
